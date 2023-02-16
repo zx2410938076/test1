@@ -1,5 +1,5 @@
 <template>
-  <div>Customer</div>
+  <div>CommunityManagement</div>
 </template>
 
 <script>

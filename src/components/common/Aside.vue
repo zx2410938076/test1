@@ -1,0 +1,147 @@
+<template>
+  <div class="asideContianer">
+    <el-menu
+      default-active="1-4-1"
+      class="el-menu-vertical-demo"
+      :collapse="isCollapse"
+      background-color="rgb(50, 65, 87)"
+      text-color="#fff"
+      active-text-color="#ffd04b"
+    >
+      <h3>{{ isCollapse ? "社区养老" : "社区养老管理系统" }}</h3>
+      <!--没有二级菜单-->
+      <el-menu-item
+        v-for="item in noChildren"
+        :key="item.name"
+        :index="item.name"
+        @click="clickMenu(item)"
+      >
+        <i :class="`el-icon-${item.icon}`"></i>
+        <span slot="title">{{ item.label }}</span>
+      </el-menu-item>
+      <!--有二级菜单-->
+      <el-submenu
+        v-for="item in hasChildren"
+        :key="item.name"
+        :index="item.name"
+      >
+        <template slot="title">
+          <i :class="`el-icon-${item.icon}`"></i>
+          <span slot="title">{{ item.label }}</span>
+        </template>
+
+        <el-menu-item-group
+          v-for="subItem in item.children"
+          :key="subItem.name"
+        >
+          <el-menu-item :index="subItem.name" @click="clickMenu(subItem)">{{
+            subItem.label
+          }}</el-menu-item>
+        </el-menu-item-group>
+      </el-submenu>
+    </el-menu>
+  </div>
+</template>
+<style lang="less" scoped>
+.el-menu {
+  height: 100vh;
+  border-right: none;
+  h3 {
+    color: #fff;
+    text-align: center;
+    line-height: 48px;
+    font-size: 22px;
+    font-weight: 400;
+    padding: 0 20px;
+  }
+}
+</style>
+
+<script>
+export default {
+  name: "Aside",
+  data() {
+    return {
+      /* isCollapse: false, */
+      menuData: [
+        {
+          path: "/",
+          name: "main",
+          label: "首页",
+          icon: "s-home",
+          url: "Home/Home",
+        },
+        {
+          path: "/IndividualCenter",
+          name: "IndividualCenter",
+          label: "个人",
+          icon: "s-custom",
+          url: "Home/IndividualCenter",
+        },
+        {
+          path: "/CommunityManagement",
+          name: "CommunityManagement",
+          label: "社区",
+          icon: "s-home",
+          url: "Home/CommunityManagement",
+        },
+        {
+          path: "/Service",
+          name: "Service",
+          label: "服务商",
+          icon: "s-home",
+          url: "Home/Service",
+        },
+        {
+          label: "医生管理",
+          icon: "user",
+          name: "doctors",
+          children: [
+            {
+              path: "/DoctorInformation",
+              name: "DoctorInformation",
+              label: "医生信息",
+              icon: "setting",
+              url: "doctors/DoctorInformation",
+            },
+            {
+              path: "/MedicalRecord",
+              name: "MedicalRecord",
+              label: "就诊记录",
+              icon: "setting",
+              url: "doctors/MedicalRecord",
+            },
+            {
+              path: "/DrugManagement",
+              name: "DrugManagement",
+              label: "药品管理",
+              icon: "setting",
+              url: "doctors/DrugManagement",
+            },
+          ],
+        },
+      ],
+    };
+  },
+  methods: {
+    clickMenu(item) {
+      if(this.$route.path != item.path && !(this.$route.path === '/Index' && item.path === '/')){
+          this.$router.push(item.path)
+        }
+    },
+  },
+  computed: {
+    hasChildren() {
+      // 过滤获取所有的有二级菜单的数据
+      return this.menuData.filter((item) => item.children);
+    },
+    noChildren() {
+      // 过滤所有只有一级菜单的数据
+      return this.menuData.filter((item) => !item.children);
+    },
+    isCollapse(){
+      return this.$store.state.tab.isCollapse
+    }
+  },
+};
+</script>
