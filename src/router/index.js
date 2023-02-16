@@ -8,6 +8,7 @@ import DoctorInformation from '../components/pages/DoctorInformation'
 import MedicalRecord from '../components/pages/MedicalRecord'
 import DrugManagement from '../components/pages/DrugManagement'
 import Index from "../components/pages/Index";
+import Login from "@/components/common/Login"
 
 Vue.use(Router)
 
@@ -59,7 +60,7 @@ export default new Router({
         {
             path: '/Login',
             name: 'login',// 主路由
-            component: Home,
+            component: Login,
         }
     ]
 })
