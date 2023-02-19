@@ -9,6 +9,7 @@
       active-text-color="#ffd04b"
     >
       <h3>{{ isCollapse ? "社区养老" : "社区养老管理系统" }}</h3>
+      <!-- <img v-show=isCollapse height="10px" width="100px" src="@/assets/logo.png"> -->
       <!--没有二级菜单-->
       <el-menu-item
         v-for="item in noChildren"
@@ -125,9 +126,10 @@ export default {
   },
   methods: {
     clickMenu(item) {
-      if(this.$route.path != item.path && !(this.$route.path === '/Index' && item.path === '/')){
+      if(this.$route.path != item.path && !(this.$route.path === '/firstPage' && item.path === '/')){
           this.$router.push(item.path)
         }
+        this.$store.commit('menuChange',item)
     },
   },
   computed: {

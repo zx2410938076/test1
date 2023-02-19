@@ -7,7 +7,7 @@ import Service from '../components/pages/Service'
 import DoctorInformation from '../components/pages/DoctorInformation'
 import MedicalRecord from '../components/pages/MedicalRecord'
 import DrugManagement from '../components/pages/DrugManagement'
-import Index from "../components/pages/Index";
+import firstPage from "../components/pages/firstPage";
 import Login from "@/components/common/Login"
 
 Vue.use(Router)
@@ -18,12 +18,12 @@ export default new Router({
             path: '/',
             name: 'Home',// 主路由
             component: Home,
-            redirect:"Index",
+            redirect:"firstPage",
             children: [
                 {
-                    path: '/Index',
-                    name: 'Index',
-                    component: Index
+                    path: '/firstPage',
+                    name: 'firstPage',
+                    component: firstPage
                 },
                 {
                     path: '/IndividualCenter',

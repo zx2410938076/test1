@@ -1,8 +1,17 @@
 <template>
   <div class="Header">
-    <div class="left">
-      <i class="menu" :class="`el-icon-menu`" @click="handleMenu"></i>
-      <div class="title">首页</div>
+    <div class="">
+      <el-button
+        icon="el-icon-menu"
+        size="medium"
+        style="margin-left: 20px,margin-left: 0;"
+        @click="handleMenu"
+      ></el-button>
+      <el-breadcrumb  separator="/" style="padding-left:20px; display: inline-block;">
+        <el-breadcrumb-item v-for="item in tags" :key="item.path" :to="{ path: item.path }">
+          {{item.label}}
+        </el-breadcrumb-item>
+      </el-breadcrumb>
     </div>
     <div class="right">
       <el-dropdown>
@@ -19,16 +28,22 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 export default {
     name:'Header',
     data(){
-        return {}
+        return {} 
     },
     methods:{
         handleMenu(){
             this.$store.commit("collapeChang")
         }
-    }
+    },
+    computed:{
+    ...mapState({
+      tags:state => state.tab.tabsList
+    })
+  }
 };
 </script>
 
