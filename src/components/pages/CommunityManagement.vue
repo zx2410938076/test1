@@ -10,9 +10,20 @@
       <el-form-item>
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button
+          type="primary"
+          @click="AddUser()"
+          style="display: inline-block"
+          >添加用户</el-button
+        >
+      </el-form-item>
     </el-form>
-    <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
+    <el-dialog title="添加用户" :visible.sync="adddialogFormVisible">
       <el-form :model="form">
+        <el-form-item label="id" :label-width="formLabelWidth">
+          <el-input v-model="form.id" autocomplete="off"></el-input>
+        </el-form-item>
         <el-form-item label="用户名" :label-width="formLabelWidth">
           <el-input v-model="form.username" autocomplete="off"></el-input>
         </el-form-item>
@@ -21,8 +32,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="determine()">确 定</el-button>
+        <el-button @click="adddialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="insert()">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -44,17 +55,23 @@
           <el-button type="text" @click="edit(scope.row)" size="small"
             >编辑</el-button
           >
-          <el-popover placement="top"  v-model="visible">
+          <el-popover placement="top" v-model="visible">
             <p>这是一段内容这是一段内容确定删除吗？</p>
             <div style="text-align: right; margin: 0">
               <el-button size="mini" type="text" @click="visible = false"
                 >取消</el-button
               >
-              <el-button type="primary" size="mini" @click=delet(scope.row)
+              <el-button type="primary" size="mini" @click="delet(scope.row)"
                 >确定</el-button
               >
             </div>
-            <el-button slot="reference" type="text" size="small" style="margin-left: 10px;">删除</el-button>
+            <el-button
+              slot="reference"
+              type="text"
+              size="small"
+              style="margin-left: 10px"
+              >删除</el-button
+            >
           </el-popover>
           <el-dialog title="编辑信息" :visible.sync="dialogFormVisible">
             <el-form :model="form">
@@ -94,8 +111,10 @@ export default {
   name: "CommunityManagement",
   data() {
     return {
+      visible: false,
       dialogTableVisible: false,
       dialogFormVisible: false,
+      adddialogFormVisible: false,
       //所更新数据
       form: {
         id: "",
@@ -112,19 +131,45 @@ export default {
       formInline: {
         user: "",
       },
-      tableData: [
-        {
-          date: "",
-          name: "",
-          address: "",
-        },
-      ],
+      tableData: [],
     };
   },
   methods: {
+    //添加用户
+    AddUser() {
+      console.log("添加");
+      this.form = {
+        id: "",
+        username: "",
+        phone: "",
+      };
+      this.adddialogFormVisible = true;
+    },
+    //新建用户
+    insert() {
+      this.$axios({
+        method: "post",
+        url: "user/insert",
+        data: {
+          id: this.form.id,
+          username: this.form.username,
+          phone: this.form.phone,
+        },
+      }).then(
+        (res) => {
+          console.log(res.data);
+          this.NewForm(this.current, this.size);
+          this.adddialogFormVisible = false;
+          this.$alert("添加成功");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
     //删除用户
     delet(row) {
-      console.log(row)
+      console.log(row);
       this.$axios({
         method: "get",
         url: "user/delete",
@@ -133,18 +178,18 @@ export default {
         },
       }).then(
         (res) => {
-          this.visible = false
-          this.$alert("修改成功")
-          this.NewForm(this.current, this.size)
+          this.visible = false;
+          this.$alert("修改成功");
+          this.NewForm(this.current, this.size);
         },
         (err) => {
-          console.log(err)
+          console.log(err);
         }
-      )
+      );
     },
     //确定修改
     determine() {
-      console.log(this.form)
+      console.log(this.form);
       this.$axios({
         method: "post",
         url: "user/update",
@@ -155,27 +200,27 @@ export default {
         },
       }).then(
         (res) => {
-          console.log(res.data)
+          console.log(res.data);
           this.NewForm(this.current, this.size);
           this.dialogFormVisible = false;
-          this.$alert("修改成功")
+          this.$alert("修改成功");
         },
         (err) => {
-          console.log(err)
+          console.log(err);
         }
       );
     },
     //编辑信息
     edit(row) {
-      this.dialogFormVisible = true
-      this.form.id = row.id
-      this.form.username = row.username
-      this.form.phone = row.phone
-      console.log(row)
+      this.dialogFormVisible = true;
+      this.form.id = row.id;
+      this.form.username = row.username;
+      this.form.phone = row.phone;
+      console.log(row);
     },
     //查看详细信息
     handleClick(row) {
-      console.log(row)
+      console.log(row);
     },
     //更新表单
     NewForm(current, size) {
@@ -188,10 +233,10 @@ export default {
         },
       }).then(
         (res) => {
-          console.log(res.data)
-          this.FormSize = res.data.data.size
-          this.FormTotal = res.data.data.total
-          this.tableData = res.data.data.records
+          console.log(res.data);
+          this.FormSize = res.data.data.size;
+          this.FormTotal = res.data.data.total;
+          this.tableData = res.data.data.records;
         },
         (err) => {
           console.log(err);
