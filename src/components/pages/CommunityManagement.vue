@@ -44,9 +44,12 @@
       </el-table-column>
       <el-table-column prop="email" label="邮箱" width="180"> </el-table-column>
       <el-table-column prop="phone" label="电话" width="180"> </el-table-column>
-      <el-table-column prop="" label="地址">
+
+      <el-table-column prop="avatar" label="头像">
         <img :src="tableData.avatar" style="width: 50px; height: 50px" />
       </el-table-column>
+
+      <!-- 处理操作 -->
       <el-table-column prop="" label="操作">
         <template slot-scope="scope">
           <el-button @click="handleClick(scope.row)" type="text" size="small"
@@ -55,24 +58,22 @@
           <el-button type="text" @click="edit(scope.row)" size="small"
             >编辑</el-button
           >
-          <el-popover placement="top" v-model="visible">
-            <p>这是一段内容这是一段内容确定删除吗？</p>
-            <div style="text-align: right; margin: 0">
-              <el-button size="mini" type="text" @click="visible = false"
-                >取消</el-button
-              >
-              <el-button type="primary" size="mini" @click="delet(scope.row)"
-                >确定</el-button
-              >
-            </div>
-            <el-button
-              slot="reference"
+          <template>
+          <el-popconfirm
+            confirm-button-text='好的'
+            cancel-button-text='不用了'
+            @confirm=confirm(scope.row)
+            icon="el-icon-info"
+            icon-color="red"
+            title="这是一段内容确定删除吗？"
+          >
+            <el-button slot="reference"              
               type="text"
               size="small"
-              style="margin-left: 10px"
-              >删除</el-button
-            >
-          </el-popover>
+              style="margin-left: 10px">删除</el-button>
+          </el-popconfirm>
+          </template>
+
           <el-dialog title="编辑信息" :visible.sync="dialogFormVisible">
             <el-form :model="form">
               <el-form-item label="用户名" :label-width="formLabelWidth">
@@ -168,7 +169,7 @@ export default {
       );
     },
     //删除用户
-    delet(row) {
+    confirm(row) {
       console.log(row);
       this.$axios({
         method: "get",
