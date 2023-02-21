@@ -14,13 +14,13 @@
       </el-breadcrumb>
     </div>
     <div class="right">
-      <el-dropdown>
+      <el-dropdown @command="handleCommand">
         <span class="el-dropdown-link">
           <img  class="HeadPicture" src="@/assets/user.png"/>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>个人信息</el-dropdown-item>
-          <el-dropdown-item>退出登录</el-dropdown-item>
+          <el-dropdown-item command="a" >个人信息</el-dropdown-item>
+          <el-dropdown-item command="b" >退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -37,7 +37,26 @@ export default {
     methods:{
         handleMenu(){
             this.$store.commit("collapeChang")
-        }
+        },handleCommand(commond){
+      if('b' === commond){
+        this.$confirm('是否确认注销登录?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+           // 表示处理的是 注销操作
+          sessionStorage.clear(); // 清空存储的Token信息
+          // 然后跳转到登录页
+          this.$router.push("/Login")
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消注销'
+          });          
+        });
+        
+      }
+    }
     },
     computed:{
     ...mapState({
