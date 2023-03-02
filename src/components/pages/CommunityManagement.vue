@@ -21,9 +21,6 @@
     </el-form>
     <el-dialog title="添加用户" :visible.sync="adddialogFormVisible">
       <el-form :model="form">
-        <el-form-item label="id" :label-width="formLabelWidth">
-          <el-input v-model="form.id" autocomplete="off"></el-input>
-        </el-form-item>
         <el-form-item label="用户名" :label-width="formLabelWidth">
           <el-input v-model="form.username" autocomplete="off"></el-input>
         </el-form-item>
@@ -118,7 +115,6 @@ export default {
       adddialogFormVisible: false,
       //所更新数据
       form: {
-        id: "",
         username: "",
         phone: "",
       },
@@ -140,7 +136,6 @@ export default {
     AddUser() {
       console.log("添加");
       this.form = {
-        id: "",
         username: "",
         phone: "",
       };
@@ -148,16 +143,17 @@ export default {
     },
     //新建用户
     insert() {
+      console.log(this.form);
       this.$axios({
         method: "post",
         url: "user/insert",
         data: {
-          id: this.form.id,
           username: this.form.username,
           phone: this.form.phone,
         },
       }).then(
         (res) => {
+          console.log(this.form)
           console.log(res.data);
           this.NewForm(this.current, this.size);
           this.adddialogFormVisible = false;
@@ -195,7 +191,6 @@ export default {
         method: "post",
         url: "user/update",
         data: {
-          id: this.form.id,
           username: this.form.username,
           phone: this.form.phone,
         },
@@ -295,11 +290,13 @@ export default {
         this.FormSize = res.data.data.size;
         this.FormTotal = res.data.data.total;
         this.tableData = res.data.data.records;
+        console.log(this.tableData)
       },
       (err) => {
         console.log(err);
       }
     );
+    
   },
 };
 </script>
