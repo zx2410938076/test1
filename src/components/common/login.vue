@@ -48,7 +48,7 @@ export default {
     submitFormData(){
       this.$refs['formName'].validate((valid) => {
         if (valid) {
-          this.$axios.post("login", this.form)
+          axios.post("login", this.form)
           .then((res) => {
               if(res.data.code === 200){
                 // 表示登录成功

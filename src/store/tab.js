@@ -4,7 +4,7 @@ export default{
         tabsList:[// 面包屑数据
             {
                 path:'/',
-                name:'firstPage',
+                name:'FirstPage',
                 label:'首页',
                 icon:'s-home',
                 url:'index'

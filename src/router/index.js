@@ -1,14 +1,12 @@
 import Vue from "vue";
 import Router from 'vue-router'
 import Home from '../components/common/Home'
-import IndividualCenter from '../components/pages/IndividualCenter'
-import CommunityManagement from '../components/pages/CommunityManagement'
-import Service from '../components/pages/Service'
-import DoctorInformation from '../components/pages/DoctorInformation'
-import MedicalRecord from '../components/pages/MedicalRecord'
-import DrugManagement from '../components/pages/DrugManagement'
-import firstPage from "../components/pages/firstPage";
+import DoctorInformation from '../components/pages/Administrator/DoctorInformation'
+import MedicalRecord from '../components/pages/Administrator/MedicalRecord'
+import DrugManagement from '../components/pages/Administrator/DrugManagement'
+import FirstPage from "../components/pages/Administrator/FirstPage";
 import Login from "@/components/common/Login"
+import OldMan from "@/components/pages/Administrator/OldMan"
 
 Vue.use(Router)
 
@@ -18,27 +16,17 @@ export default new Router({
             path: '/',
             name: 'Home',// 主路由
             component: Home,
-            redirect:"firstPage",
+            redirect:"FirstPage",
             children: [
                 {
-                    path: '/firstPage',
-                    name: 'firstPage',
-                    component: firstPage
+                    path: '/FirstPage',
+                    name: 'FirstPage',
+                    component: FirstPage
                 },
                 {
-                    path: '/IndividualCenter',
-                    name: 'IndividualCenter',
-                    component: IndividualCenter
-                },
-                {
-                    path: '/CommunityManagement',
-                    name: 'CommunityManagement',
-                    component: CommunityManagement
-                },
-                {
-                    path: '/Service',
-                    name: 'Service',
-                    component: Service
+                    path: '/OldMan',
+                    name: 'OldMan',
+                    component: OldMan
                 },
                 {
                     path: '/DoctorInformation',

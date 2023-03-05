@@ -5,7 +5,7 @@
       :key="item.path"
       :effect="$route.name === item.name ? 'dark' : 'plain'"
       @click="changeMenu(item)"
-      :closable="item.name !== 'index'"
+      :closable="item.name !== 'FirstPage'"
       @close="handleClose(item,index)"
     >
       {{ item.label }}
@@ -23,7 +23,8 @@ export default {
     ...mapState({
       tags: (state) => state.tab.tabsList,
     }),
-  },methods:{
+  },
+  methods:{
     ...mapMutations(['closeTag']),
     changeMenu(item){
         // 点击tab标签我们需要动态的路由
@@ -40,7 +41,7 @@ export default {
         this.$router.push(this.tags[0])
     }
   }
-};
+}
 </script>
 <style lang="less" scoped>
 .tabs {
