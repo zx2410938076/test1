@@ -21,6 +21,9 @@ axios.interceptors.request.use(config =>{
   return Promise.reject(error);
 })
 
+
+
+
 /** 使用router钩子函数来处理 */
 router.beforeEach((to, from, next) => {
   const username = sessionStorage.getItem('username')

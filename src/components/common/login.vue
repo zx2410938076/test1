@@ -33,9 +33,10 @@ export default {
   name: "Login",
   data() {
     return {
+      roles :null,
       form: {
-        username: "",
-        password: "",
+        username: "admin",
+        password: "123456",
       },
       rules: {
         username: [{ required: true, message: "请输入账号", trigger: "blur" }],
@@ -53,9 +54,11 @@ export default {
               if(res.data.code === 200){
                 // 表示登录成功
                 // 1.存储相关的token信息  token信息在响应的header中
+                // this.roles = res.headers.role
+                // this.roles = this.roles.substring(1, res.headers.role.length - 1); 
                 sessionStorage.setItem("token",res.headers.authorization)
                 sessionStorage.setItem("username",this.form.username)
-
+                sessionStorage.setItem("role",res.headers.role)
                 console.log(sessionStorage.getItem("username"))
                 // 2.路由到主页面
                 this.$router.push("/")
