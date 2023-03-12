@@ -1,12 +1,14 @@
 import Vue from "vue";
 import Router from 'vue-router'
 import Home from '../components/common/Home'
-import DoctorInformation from '../components/pages/Administrator/DoctorInformation'
-import MedicalRecord from '../components/pages/Administrator/MedicalRecord'
-import DrugManagement from '../components/pages/Administrator/DrugManagement'
+import PhysicalExamination from '../components/pages/Doctor/PhysicalExamination'
+import MedicalRecord from '../components/pages/Doctor/MedicalRecord'
+import DrugManagement from '../components/pages/Doctor/DrugManagement'
 import FirstPage from "../components/pages/Administrator/FirstPage";
 import Login from "@/components/common/Login"
 import OldMan from "@/components/pages/Administrator/OldMan"
+import Dishes from "@/components/pages/Canteen/Dishes"
+import Complaint from "@/components/pages/Complaint"
 
 Vue.use(Router)
 
@@ -29,9 +31,9 @@ export default new Router({
                     component: OldMan
                 },
                 {
-                    path: '/DoctorInformation',
-                    name: 'DoctorInformation',
-                    component: DoctorInformation
+                    path: '/PhysicalExamination',
+                    name: 'PhysicalExamination',
+                    component: PhysicalExamination
                 },
                 {
                     path: '/MedicalRecord',
@@ -43,8 +45,19 @@ export default new Router({
                     name: 'DrugManagement',
                     component: DrugManagement
                 },
+                {
+                    path:'/Dishes',
+                    name: 'Dishes',
+                    component:Dishes
+                },
+                {
+                    path:'/Complaint',
+                    name: 'Complaint',
+                    component:Complaint
+                }
             ]
         },
+        ,
         {
             path: '/Login',
             name: 'login',// 主路由

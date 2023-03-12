@@ -59,11 +59,14 @@
 </style>
 
 <script>
+import { mapState } from "vuex";
+import axios from "axios";
 export default {
   name: "Aside",
   data() {
     return {
       /* isCollapse: false, */
+      role: null,
       menuData: [
         {
           path: "/",
@@ -71,6 +74,7 @@ export default {
           label: "首页",
           icon: "s-home",
           url: "Home/Home",
+          role: ["community"],
         },
         {
           path: "/OldMan",
@@ -78,18 +82,28 @@ export default {
           label: "用户中心",
           icon: "s-custom",
           url: "Home/OldMan",
+          role: ["community", "doctor"],
         },
         {
-          label: "医生管理",
+          path: "/Dishes",
+          name: "Dishes",
+          label: "菜品公示",
+          icon: "s-custom",
+          url: "Home/Dishes",
+          role: ["canteen"],
+        },
+        {
+          label: "健康档案",
           icon: "user",
-          name: "doctors",
+          name: "HealthRecord",
+          role: ["community"],
           children: [
             {
-              path: "/DoctorInformation",
-              name: "DoctorInformation",
-              label: "医生信息",
+              path: "/PhysicalExamination",
+              name: "PhysicalExamination",
+              label: "体检记录",
               icon: "setting",
-              url: "doctors/DoctorInformation",
+              url: "doctors/PhysicalExamination",
             },
             {
               path: "/MedicalRecord",
@@ -107,15 +121,26 @@ export default {
             },
           ],
         },
+        {
+          path: "/Complaint",
+          name: "Complaint",
+          label: "投诉/意见",
+          icon: "s-custom",
+          url: "Home/Complaint",
+          role: ["canteen"],
+        },
       ],
     };
   },
   methods: {
     clickMenu(item) {
-      if(this.$route.path != item.path && !(this.$route.path === '/firstPage' && item.path === '/')){
-          this.$router.push(item.path)
-        }
-        this.$store.commit('menuChange',item)
+      if (
+        this.$route.path != item.path &&
+        !(this.$route.path === "/firstPage" && item.path === "/")
+      ) {
+        this.$router.push(item.path);
+      }
+      this.$store.commit("menuChange", item);
     },
   },
   computed: {
@@ -127,8 +152,36 @@ export default {
       // 过滤所有只有一级菜单的数据
       return this.menuData.filter((item) => !item.children);
     },
-    isCollapse(){
-      return this.$store.state.tab.isCollapse
+    isCollapse() {
+      return this.$store.state.tab.isCollapse;
+    },
+  },
+
+  mounted() {
+    console.log("权限" + this.role);
+    if (this.role == null) {
+      console.log("role为空");
+      axios({
+        method: "get",
+        url: "user/Reacquire",
+        params: {
+          username: sessionStorage.getItem("username"),
+        },
+      }).then(
+        (res) => {
+          this.$store.commit("newrole", res.data.data[0].email);
+          this.role = res.data.data[0].email;
+          console.log("改后权限" + this.role);
+          console.log(this.menuData);
+          this.menuData = this.menuData.filter((item, index, self) => {
+            return item.role.indexOf(this.role) != -1;
+          });
+          console.log("改变后" + this.menuData);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
     }
   },
 };

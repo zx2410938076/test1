@@ -58,7 +58,9 @@ export default {
                 // this.roles = this.roles.substring(1, res.headers.role.length - 1); 
                 sessionStorage.setItem("token",res.headers.authorization)
                 sessionStorage.setItem("username",this.form.username)
-                sessionStorage.setItem("role",res.headers.role)
+
+                this.$store.commit('newrole',res.headers.role)
+
                 console.log(sessionStorage.getItem("username"))
                 // 2.路由到主页面
                 this.$router.push("/")
@@ -74,6 +76,7 @@ export default {
       });
     }
   }
+  
 };
 </script>
 <style lang="less" scoped>
