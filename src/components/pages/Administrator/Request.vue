@@ -45,7 +45,7 @@
               >查看</el-button
             >
             <el-button type="text" @click="edit(scope.row)" size="small"
-              >编辑</el-button
+              >备注</el-button
             >
             <template>
             <el-popconfirm

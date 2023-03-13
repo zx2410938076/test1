@@ -74,7 +74,7 @@ export default {
           label: "首页",
           icon: "s-home",
           url: "Home/Home",
-          role: ["community"],
+          role: ["community","doctor","canteen"],
         },
         {
           path: "/OldMan",
@@ -96,7 +96,7 @@ export default {
           label: "健康档案",
           icon: "user",
           name: "HealthRecord",
-          role: ["community"],
+          role: ["doctor"],
           children: [
             {
               path: "/PhysicalExamination",
@@ -127,7 +127,15 @@ export default {
           label: "投诉/意见",
           icon: "s-custom",
           url: "Home/Complaint",
-          role: ["canteen"],
+          role: ["community","doctor","canteen"],
+        },
+        {
+          path: "/Request",
+          name: "Request",
+          label: "请求列表",
+          icon: "s-custom",
+          url: "Home/Request",
+          role: ["community","doctor"],
         },
       ],
     };

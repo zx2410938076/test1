@@ -10,7 +10,7 @@
                 alt=""
                 style="width: 100px; height: 100px; border-radius: 50%"
               />
-              <p>姓名</p>
+              <p>姓名:{{ username }}</p>
               <el-button style="float: right; padding: 3px 0" type="text"
                 >操作按钮</el-button
               >
@@ -40,7 +40,7 @@
       >
       <el-col :span="16">
         <div class="grid-content bg-purple-light">
-          <el-card style="height: 350px">
+          <el-card style="height: 350px" v-if="this.$store.state.role.role =='community'">
             <div slot="header" class="clearfix">
               <p style="display: flex">公告</p>
               <el-button style="float: right; padding: 3px 0" type="text"
@@ -68,7 +68,9 @@ import * as echarts from 'echarts';
 export default {
   name: "Index",
   data() {
-    return {};
+    return {
+      username:null,
+    };
   },
   methods: {
     get() {
@@ -78,6 +80,7 @@ export default {
     },
   },
   mounted() {
+    this.username = sessionStorage.getItem("username")
     var myecharts = echarts.init(this.$refs.echarts);
     var option = {
       xAxis: {

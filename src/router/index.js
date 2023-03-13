@@ -9,6 +9,7 @@ import Login from "@/components/common/Login"
 import OldMan from "@/components/pages/Administrator/OldMan"
 import Dishes from "@/components/pages/Canteen/Dishes"
 import Complaint from "@/components/pages/Complaint"
+import Request from "@/components/pages/Administrator/Request"
 
 Vue.use(Router)
 
@@ -54,6 +55,11 @@ export default new Router({
                     path:'/Complaint',
                     name: 'Complaint',
                     component:Complaint
+                },
+                {
+                    path:'/Request',
+                    name: 'Request',
+                    component:Request
                 }
             ]
         },
