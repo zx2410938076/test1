@@ -166,9 +166,9 @@ export default {
   },
 
   mounted() {
-    console.log("权限" + this.role);
+    //console.log("权限" + this.role);
     if (this.role == null) {
-      console.log("role为空");
+      //console.log("role为空");
       axios({
         method: "get",
         url: "user/Reacquire",
@@ -179,12 +179,12 @@ export default {
         (res) => {
           this.$store.commit("newrole", res.data.data[0].authority);
           this.role = res.data.data[0].authority;
-          console.log("改后权限" + this.role);
-          console.log(this.menuData);
+          //console.log("改后权限" + this.role);
+          //console.log(this.menuData);
           this.menuData = this.menuData.filter((item, index, self) => {
             return item.role.indexOf(this.role) != -1;
           });
-          console.log("改变后" + this.menuData);
+          //console.log("改变后" + this.menuData);
         },
         (err) => {
           console.log(err);

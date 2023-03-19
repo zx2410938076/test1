@@ -21,18 +21,64 @@
 <script>
 import Aside from "@/components/common/Aside.vue";
 import Header from "@/components/common/Header.vue";
-import CommonTab from '@/components/common/CommonTab.vue';
+import CommonTab from "@/components/common/CommonTab.vue";
 export default {
   name: "HelloWorld",
   data() {
     return {
-      msg: "Welcome to Your Vue.js App",
+      UUID: "community",
     };
   },
   components: {
     Aside,
     Header,
-    CommonTab
+    CommonTab,
+  },
+  methods: {
+    connectWebsocket() {
+      let websocket;
+      if (typeof WebSocket === "undefined") {
+        console.log("您的浏览器不支持WebSocket");
+        return;
+      } else {
+        // 打开一个websocket
+        websocket = new WebSocket("ws://localhost:9999/webSocket/"+this.UUID);
+        console.log(websocket);
+        // 建立连接
+        websocket.onopen = () => {
+          // 发送数据
+          // websocket.send("发送数据");
+          console.log("websocket发送数据中");
+        }
+        // 客户端接收服务端返回的数据
+        websocket.onmessage = (evt) => {
+          console.log("websocket返回的数据：", evt);
+          console.log("获得异常")
+        }
+        // 发生错误时
+        websocket.onerror = (evt) => {
+          console.log("websocket错误了：", evt);
+        }
+        // 关闭连接
+        websocket.onclose = (evt) => {
+          console.log("websocket关闭：", evt);
+        }
+      }
+    },
+    getUUID() {
+      //获取唯一的UUID
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function (c) {
+          var r = (Math.random() * 16) | 0,
+            v = c == "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        }
+      );
+    },
+  },
+  mounted() {
+    this.connectWebsocket();
   },
 };
 </script>
