@@ -22,10 +22,10 @@
       <el-dialog title="添加用户" :visible.sync="adddialogFormVisible">
         <el-form :model="form">
           <el-form-item label="用户名" :label-width="formLabelWidth">
-            <el-input v-model="form.username" autocomplete="off"></el-input>
+            <el-input v-model="form.userName" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="电话" :label-width="formLabelWidth">
-            <el-input v-model="form.phone" autocomplete="off"></el-input>
+            <el-input v-model="form.userPhone" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -36,10 +36,10 @@
   
       <el-table :data="tableData">
         <el-table-column type="selection" width="55"> </el-table-column>
-        <el-table-column prop="id" label="编号" width="180"> </el-table-column>
-        <el-table-column prop="username" label="姓名" width="180">
+        <el-table-column prop="userNumber" label="编号" width="180"> </el-table-column>
+        <el-table-column prop="userName" label="姓名" width="180">
         </el-table-column>
-        <el-table-column prop="email" label="邮箱" width="180"> </el-table-column>
+        <el-table-column prop="" label="邮箱" width="180"> </el-table-column>
         <el-table-column prop="phone" label="电话" width="180"> </el-table-column>
   
         <el-table-column prop="avatar" label="头像">
@@ -74,10 +74,10 @@
             <el-dialog title="编辑信息" :visible.sync="dialogFormVisible">
               <el-form :model="form">
                 <el-form-item label="用户名" :label-width="formLabelWidth">
-                  <el-input v-model="form.username" autocomplete="off"></el-input>
+                  <el-input v-model="form.userName" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="电话" :label-width="formLabelWidth">
-                  <el-input v-model="form.phone" autocomplete="off"></el-input>
+                  <el-input v-model="form.userPhone" autocomplete="off"></el-input>
                 </el-form-item>
               </el-form>
               <div slot="footer" class="dialog-footer">
@@ -115,8 +115,8 @@
         adddialogFormVisible: false,
         //所更新数据
         form: {
-          username: "",
-          phone: "",
+          userName: "",
+          userPhone: "",
         },
         formLabelWidth: "120px",
   
@@ -136,8 +136,9 @@
       AddUser() {
         console.log("添加");
         this.form = {
-          username: "",
-          phone: "",
+          userId:"",
+          userName: "",
+          userPhone: "",
         };
         this.adddialogFormVisible = true;
       },
@@ -148,8 +149,8 @@
           method: "post",
           url: "user/insert",
           data: {
-            username: this.form.username,
-            phone: this.form.phone,
+            userName: this.form.userName,
+            userPhone: this.form.userPhone,
           },
         }).then(
           (res) => {
@@ -171,7 +172,7 @@
           method: "get",
           url: "user/delete",
           params: {
-            id: row.id,
+            userId: row.userId,
           },
         }).then(
           (res) => {
@@ -191,8 +192,9 @@
           method: "post",
           url: "user/update",
           data: {
-            username: this.form.username,
-            phone: this.form.phone,
+            userId:this.form.userId,
+            userName: this.form.userName,
+            userPhone: this.form.userPhone,
           },
         }).then(
           (res) => {
@@ -209,9 +211,9 @@
       //编辑信息
       edit(row) {
         this.dialogFormVisible = true;
-        this.form.id = row.id;
-        this.form.username = row.username;
-        this.form.phone = row.phone;
+        this.form.userId = row.userId;
+        this.form.userName = row.userName;
+        this.form.userPhone = row.userPhone;
         console.log(row);
       },
       //查看详细信息
@@ -233,6 +235,7 @@
             this.FormSize = res.data.data.size;
             this.FormTotal = res.data.data.total;
             this.tableData = res.data.data.records;
+            console.log(this.tableData)
           },
           (err) => {
             console.log(err);

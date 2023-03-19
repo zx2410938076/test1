@@ -11,12 +11,12 @@
         ref="formName"
       >
         <el-form-item label="账号" prop="username">
-          <el-input v-model="form.username" placeholder="请输入账号"></el-input>
+          <el-input v-model="form.userName" placeholder="请输入账号"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
             type="password"
-            v-model="form.password"
+            v-model="form.userPassword"
             placeholder="请输入密码"
           ></el-input>
         </el-form-item>
@@ -35,12 +35,12 @@ export default {
     return {
       roles :null,
       form: {
-        username: "admin",
-        password: "123456",
+        userName: "admin",
+        userPassword: "123456",
       },
       rules: {
-        username: [{ required: true, message: "请输入账号", trigger: "blur" }],
-        password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+        userName: [{ required: true, message: "请输入账号", trigger: "blur" }],
+        userPassword: [{ required: true, message: "请输入密码", trigger: "blur" }],
       },
     };
   },
@@ -57,7 +57,7 @@ export default {
                 // this.roles = res.headers.role
                 // this.roles = this.roles.substring(1, res.headers.role.length - 1); 
                 sessionStorage.setItem("token",res.headers.authorization)
-                sessionStorage.setItem("username",this.form.username)
+                sessionStorage.setItem("username",this.form.userName)
 
                 this.$store.commit('newrole',res.headers.role)
 

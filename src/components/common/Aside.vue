@@ -177,8 +177,8 @@ export default {
         },
       }).then(
         (res) => {
-          this.$store.commit("newrole", res.data.data[0].email);
-          this.role = res.data.data[0].email;
+          this.$store.commit("newrole", res.data.data[0].authority);
+          this.role = res.data.data[0].authority;
           console.log("改后权限" + this.role);
           console.log(this.menuData);
           this.menuData = this.menuData.filter((item, index, self) => {
