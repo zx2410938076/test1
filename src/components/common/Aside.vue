@@ -172,6 +172,7 @@ export default {
       axios({
         method: "get",
         url: "user/Reacquire",
+        
         params: {
           username: sessionStorage.getItem("username"),
         },
