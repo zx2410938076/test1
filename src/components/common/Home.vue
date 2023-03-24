@@ -30,6 +30,7 @@
 import Aside from "@/components/common/Aside.vue";
 import Header from "@/components/common/Header.vue";
 import CommonTab from "@/components/common/CommonTab.vue";
+import{Search}from "@/http/user"
 export default {
   name: "HelloWorld",
   data() {
@@ -89,17 +90,15 @@ export default {
       );
     },
     onSubmit(id) {
-        this.$axios({
-          method: "get",
-          url: "user/serch",
-          params: {
+      let params= {
             current: 1,
             size: 1,
             target: id,
-          },
-        }).then(
+          }
+          Search(params).then(
           (res) => {
             console.log(res.data);
+            console.log("home里的search")
             this.RequestData = res.data.data.records[0]
           },
           (err) => {

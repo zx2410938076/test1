@@ -28,14 +28,14 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
+import{Login}from "@/http/user"
 export default {
   name: "Login",
   data() {
     return {
       roles :null,
       form: {
-        userName: "admin",
+        userName: "zhangsan",
         userPassword: "123456",
       },
       rules: {
@@ -49,7 +49,7 @@ export default {
     submitFormData(){
       this.$refs['formName'].validate((valid) => {
         if (valid) {
-          axios.post("login", this.form)
+          Login(this.form)
           .then((res) => {
               if(res.data.code === 200){
                 // 表示登录成功

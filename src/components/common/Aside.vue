@@ -59,8 +59,7 @@
 </style>
 
 <script>
-import { mapState } from "vuex";
-import axios from "axios";
+import{Reacquire}from "@/http/user"
 export default {
   name: "Aside",
   data() {
@@ -169,15 +168,13 @@ export default {
     //console.log("权限" + this.role);
     if (this.role == null) {
       //console.log("role为空");
-      axios({
-        method: "get",
-        url: "user/Reacquire",
-        
-        params: {
-          username: sessionStorage.getItem("username"),
-        },
-      }).then(
+      let params = {
+        userName:sessionStorage.getItem("username")
+      }
+
+      Reacquire(params).then(
         (res) => {
+          console.log(res)
           this.$store.commit("newrole", res.data.data[0].authority);
           this.role = res.data.data[0].authority;
           //console.log("改后权限" + this.role);

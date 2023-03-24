@@ -24,9 +24,18 @@ export default{
                 }
             }
         },
-        closeTag(state,val){
+        closeTag(state,val){ 
             const index = state.tabsList.findIndex(item => item.name === val.name)
             state.tabsList.splice(index,1)
+        },
+        closeAllTage(){
+            state.tabsList = [{
+                path:'/',
+                name:'FirstPage',
+                label:'首页',
+                icon:'s-home',
+                url:'index'
+            }]
         }
 
     }

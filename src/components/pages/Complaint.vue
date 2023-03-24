@@ -8,73 +8,88 @@
         ></el-input>
       </el-form-item>
       <el-form-item>
+        <el-dropdown>
+          <span class="el-dropdown-link"
+            >{{ state ? "已处理" : "未处理"
+            }}<i class="el-icon-arrow-down el-icon--right"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item @click.native="processed()"
+              >已处理</el-dropdown-item
+            >
+            <el-dropdown-item @click.native="unprocessed()"
+              >未处理</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-form-item>
+      <el-form-item>
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
     </el-form>
-    <el-dialog title="添加用户" :visible.sync="adddialogFormVisible">
-      <el-form :model="form">
-        <el-form-item label="用户名" :label-width="formLabelWidth">
-          <el-input v-model="form.username" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="电话" :label-width="formLabelWidth">
-          <el-input v-model="form.phone" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="adddialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="insert()">确 定</el-button>
-      </div>
-    </el-dialog>
 
     <el-table :data="tableData">
       <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column prop="id" label="编号" width="180"> </el-table-column>
-      <el-table-column prop="username" label="姓名" width="180">
+      <el-table-column prop="userId" label="用户id" width="180">
       </el-table-column>
-      <el-table-column prop="email" label="邮箱" width="180"> </el-table-column>
-      <el-table-column prop="phone" label="电话" width="180"> </el-table-column>
-
-      <el-table-column prop="avatar" label="头像">
-        <img :src="tableData.avatar" style="width: 50px; height: 50px" />
+      <el-table-column prop="complaintDepartment" label="投诉部门" width="180">
+      </el-table-column>
+      <el-table-column prop="complaintDescription" label="描述" width="180">
+      </el-table-column>
+      <el-table-column prop="complaintFeedback" label="反馈" width="360">
+      </el-table-column>
+      <el-table-column prop="handlerId" label="处理人id" width="180">
       </el-table-column>
 
       <!-- 处理操作 -->
       <el-table-column prop="" label="操作">
         <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="small"
+          <el-button type="text" @click="handleClick(scope.row)" size="small"
             >查看</el-button
           >
           <el-button type="text" @click="edit(scope.row)" size="small"
-            >回复</el-button
+            >备注</el-button
           >
           <template>
-          <el-popconfirm
-            confirm-button-text='好的'
-            cancel-button-text='不用了'
-            @confirm=confirm(scope.row)
-            icon="el-icon-info"
-            icon-color="red"
-            title="这是一段内容确定删除吗？"
-          >
-            <el-button slot="reference"              
-              type="text"
-              size="small"
-              style="margin-left: 10px">删除</el-button>
-          </el-popconfirm>
+            <el-popconfirm
+              confirm-button-text="好的"
+              cancel-button-text="不用了"
+              @confirm="confirm(scope.row)"
+              icon="el-icon-info"
+              icon-color="red"
+              title="这是一段内容确定删除吗？"
+            >
+              <el-button
+                slot="reference"
+                type="text"
+                size="small"
+                style="margin-left: 10px"
+                >删除</el-button
+              >
+            </el-popconfirm>
           </template>
 
-          <el-dialog title="编辑信息" :visible.sync="dialogFormVisible">
-            <el-form :model="form">
-              <el-form-item label="用户名" :label-width="formLabelWidth">
-                <el-input v-model="form.username" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="电话" :label-width="formLabelWidth">
-                <el-input v-model="form.phone" autocomplete="off"></el-input>
+          <el-dialog :visible.sync="dialogFormVisible">
+            <el-form :model="form" v-show="choose == 0">
+              <el-form-item label="反馈信息" :label-width="formLabelWidth">
+                <el-input
+                  v-model="form.complaintFeedback"
+                  autocomplete="off"
+                ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+
+            <el-form :model="form" v-show="choose == 1">
+              <el-form-item label="反馈信息" :label-width="formLabelWidth">
+                {{ form.complaintFeedback }}
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer" v-show="choose == 0">
               <el-button @click="dialogFormVisible = false">取 消</el-button>
               <el-button type="primary" @click="determine()">确 定</el-button>
+            </div>
+            <div slot="footer" class="dialog-footer" v-show="choose == 1">
+              <el-button @click="dialogFormVisible = false">关闭</el-button>
             </div>
           </el-dialog>
         </template>
@@ -95,19 +110,31 @@
     </div>
   </div>
 </template>
-
-<script>
+  
+  <script>
+import {
+  complaintSearch,
+  complaintDelet,
+  complaintUpdate,
+} from "@/http/complaint";
 export default {
-  name: "CommunityManagement",
+  name: "Request",
   data() {
     return {
-      visible: false,
-      dialogTableVisible: false,
       dialogFormVisible: false,
+      choose: 0,
+      state: 0,
       //所更新数据
       form: {
-        username: "",
-        phone: "",
+        complaintDepartment: "",
+        complaintDescription: "",
+        complaintFeedback: "",
+        complaintId: "",
+        complaintObject: "",
+        handlerId: "",
+        initiationTime: "",
+        processingTime: "",
+        userId: "",
       },
       formLabelWidth: "120px",
 
@@ -123,20 +150,27 @@ export default {
     };
   },
   methods: {
+    processed() {
+      this.state = 1;
+      this.onSubmit();
+    },
+    unprocessed() {
+      console.log("未处理");
+      this.state = 0;
+      this.onSubmit();
+    },
     //删除用户
     confirm(row) {
       console.log(row);
-      this.$axios({
-        method: "get",
-        url: "user/delete",
-        params: {
-          id: row.id,
-        },
-      }).then(
+      let params = {
+        complaintId: row.complaintId,
+      };
+
+      complaintDelet(params).then(
         (res) => {
           this.visible = false;
           this.$alert("修改成功");
-          this.NewForm(this.current, this.size);
+          this.onSubmit();
         },
         (err) => {
           console.log(err);
@@ -145,18 +179,16 @@ export default {
     },
     //确定修改
     determine() {
+      console.log("改前");
       console.log(this.form);
-      this.$axios({
-        method: "post",
-        url: "user/update",
-        data: {
-          username: this.form.username,
-          phone: this.form.phone,
-        },
-      }).then(
+      let data = {
+        complaintId: this.form.complaintId,
+        complaintFeedback: this.form.complaintFeedback,
+      };
+      complaintUpdate(data).then(
         (res) => {
           console.log(res.data);
-          this.NewForm(this.current, this.size);
+          this.onSubmit(this.current, this.size);
           this.dialogFormVisible = false;
           this.$alert("修改成功");
         },
@@ -167,49 +199,30 @@ export default {
     },
     //编辑信息
     edit(row) {
+      this.form = row;
+      this.choose = 0;
       this.dialogFormVisible = true;
-      this.form.id = row.id;
-      this.form.username = row.username;
-      this.form.phone = row.phone;
+      console.log("row");
       console.log(row);
     },
     //查看详细信息
     handleClick(row) {
+      this.form = row;
+      this.choose = 1;
+      this.dialogFormVisible = true;
+      console.log("row");
       console.log(row);
-    },
-    //更新表单
-    NewForm(current, size) {
-      this.$axios({
-        method: "get",
-        url: "user/paging",
-        params: {
-          current: current,
-          size: size,
-        },
-      }).then(
-        (res) => {
-          console.log(res.data);
-          this.FormSize = res.data.data.size;
-          this.FormTotal = res.data.data.total;
-          this.tableData = res.data.data.records;
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
     },
     //查询
     onSubmit() {
-      console.log(this.formInline.user);
-      this.$axios({
-        method: "get",
-        url: "user/serch",
-        params: {
-          current: this.current,
-          size: this.size,
-          target: this.formInline.user,
-        },
-      }).then(
+      let params = {
+        current: this.current,
+        size: this.size,
+        target: this.formInline.user,
+        state: this.state,
+        authority: this.$store.state.role.role,
+      };
+      complaintSearch(params).then(
         (res) => {
           console.log(res.data);
           this.FormSize = res.data.data.size;
@@ -225,37 +238,27 @@ export default {
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
       this.size = val;
-      this.NewForm(this.current, val);
+      this.onSubmit();
     },
     //跳转页数
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
       this.current = val;
-      this.NewForm(val, this.size);
+      this.onSubmit();
     },
   },
   //初始化数据
   mounted() {
-    this.$axios({
-      method: "get",
-      url: "user/paging",
-      params: {
-        current: 1,
-        size: 5,
-      },
-    }).then(
-      (res) => {
-        console.log(res.data);
-        this.FormSize = res.data.data.size;
-        this.FormTotal = res.data.data.total;
-        this.tableData = res.data.data.records;
-        console.log(this.tableData)
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
-    
+    console.log(this.$store.state.role.role);
+    console.log(this.$route.params.state)
+    if (this.$route.params.state != undefined) {
+      console.log("路由传过来的");
+      console.log(this.$route.params.state);
+      console.log(this.$route.params.target);
+      this.state = this.$route.params.state;
+      this.formInline.user = this.$route.params.target;
+    }
+    this.onSubmit();
   },
 };
 </script>
