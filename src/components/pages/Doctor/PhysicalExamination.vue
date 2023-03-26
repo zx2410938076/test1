@@ -11,78 +11,145 @@
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          @click="AddUser()"
-          style="display: inline-block"
-          >添加用户</el-button
-        >
+        <el-button type="primary" @click="Oninsert">添加记录</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="MedicalHistory">用户病史</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="suggestion">医生建议</el-button>
       </el-form-item>
     </el-form>
-    <el-dialog title="添加用户" :visible.sync="adddialogFormVisible">
-      <el-form :model="form">
-        <el-form-item label="用户名" :label-width="formLabelWidth">
-          <el-input v-model="form.username" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="电话" :label-width="formLabelWidth">
-          <el-input v-model="form.phone" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="adddialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="insert()">确 定</el-button>
-      </div>
-    </el-dialog>
 
     <el-table :data="tableData">
       <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column prop="id" label="编号" width="180"> </el-table-column>
-      <el-table-column prop="username" label="姓名" width="180">
+      <el-table-column prop="userId" label="用户id" width="180">
       </el-table-column>
-      <el-table-column prop="email" label="邮箱" width="180"> </el-table-column>
-      <el-table-column prop="phone" label="电话" width="180"> </el-table-column>
-
-      <el-table-column prop="avatar" label="头像">
-        <img :src="tableData.avatar" style="width: 50px; height: 50px" />
+      <el-table-column
+        prop="physicalExaminationItems"
+        label="体检项目"
+        width="180"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="physicalExaminationResult"
+        label="体检结果"
+        width="360"
+      >
+      </el-table-column>
+      <el-table-column prop="doctorId" label="医生id" width="180">
+      </el-table-column>
+      <el-table-column
+        prop="physicalExaminationTime"
+        label="体检时间"
+        width="180"
+      >
       </el-table-column>
 
       <!-- 处理操作 -->
       <el-table-column prop="" label="操作">
         <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="small"
-            >查看</el-button
-          >
           <el-button type="text" @click="edit(scope.row)" size="small"
-            >编辑</el-button
+            >修改</el-button
           >
           <template>
-          <el-popconfirm
-            confirm-button-text='好的'
-            cancel-button-text='不用了'
-            @confirm=confirm(scope.row)
-            icon="el-icon-info"
-            icon-color="red"
-            title="这是一段内容确定删除吗？"
-          >
-            <el-button slot="reference"              
-              type="text"
-              size="small"
-              style="margin-left: 10px">删除</el-button>
-          </el-popconfirm>
+            <el-popconfirm
+              confirm-button-text="好的"
+              cancel-button-text="不用了"
+              @confirm="confirm(scope.row)"
+              icon="el-icon-info"
+              icon-color="red"
+              title="这是一段内容确定删除吗？"
+            >
+              <el-button
+                slot="reference"
+                type="text"
+                size="small"
+                style="margin-left: 10px"
+                >删除</el-button
+              >
+            </el-popconfirm>
           </template>
 
-          <el-dialog title="编辑信息" :visible.sync="dialogFormVisible">
-            <el-form :model="form">
-              <el-form-item label="用户名" :label-width="formLabelWidth">
-                <el-input v-model="form.username" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="电话" :label-width="formLabelWidth">
-                <el-input v-model="form.phone" autocomplete="off"></el-input>
-              </el-form-item>
-            </el-form>
+          <el-dialog :visible.sync="dialogFormVisible">
+            <!-- 体检 -->
+            <div v-show="choose == 0 || choose == 1">
+              <el-form :model="form">
+                <div v-show="choose == 0">
+                  <el-form-item label="用户id" :label-width="formLabelWidth">
+                    <el-input
+                      v-model="form.userId"
+                      autocomplete="off"
+                    ></el-input>
+                  </el-form-item>
+                </div>
+                <el-form-item label="体检项目" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="form.physicalExaminationItems"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="体检结果" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="form.physicalExaminationResult"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+              </el-form>
+            </div>
+            <!-- 用户病史 -->
+            <div v-show="choose == 2">
+              <el-form :model="form">
+                <el-form-item label="用户id" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="form.physicalExaminationItems"
+                    autocomplete="off"
+                  ></el-input>
+                  <el-button>查询</el-button>
+                </el-form-item>
+                <el-form-item label="病史" :label-width="formLabelWidth">
+                </el-form-item>
+              </el-form>
+            </div>
+            <!-- 医生建议 -->
+            <div v-show="choose == 3">
+              <el-form :model="form">
+                <el-form-item label="用户id" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="form.physicalExaminationItems"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="医生建议" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="form.physicalExaminationItems"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+              </el-form>
+            </div>
+
             <div slot="footer" class="dialog-footer">
-              <el-button @click="dialogFormVisible = false">取 消</el-button>
-              <el-button type="primary" @click="determine()">确 定</el-button>
+              <div v-show="choose == 1">
+                <el-button type="primary" @click="determine()"
+                  >确 定 修 改</el-button
+                ><el-button @click="dialogFormVisible = false">取 消</el-button>
+              </div>
+              <div v-show="choose == 0">
+                <el-button type="primary" @click="insert()"
+                  >确 定 添 加</el-button
+                >
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+              </div>
+              <div v-show="choose == 2">
+                <el-button type="primary" @click="insert()"
+                  >添 加 病 史</el-button
+                ><el-button @click="dialogFormVisible = false">关 闭</el-button>
+              </div>
+              <div v-show="choose == 3">
+                <el-button type="primary" @click="insert()">确 定 </el-button
+                ><el-button @click="dialogFormVisible = false">取 消</el-button>
+              </div>
             </div>
           </el-dialog>
         </template>
@@ -103,23 +170,31 @@
     </div>
   </div>
 </template>
-
-<script>
+  
+  <script>
+import {
+  physicalExaminationPaging,
+  physicalExaminationSearch,
+  physicalExaminationDelet,
+  physicalExaminationUpdate,
+  physicalExaminationInsert,
+} from "@/http/PhysicalExamination";
 export default {
-  name: "CommunityManagement",
+  name: "Request",
   data() {
     return {
-      visible: false,
-      dialogTableVisible: false,
       dialogFormVisible: false,
-      adddialogFormVisible: false,
       //所更新数据
       form: {
-        username: "",
-        phone: "",
+        doctorId: "",
+        physicalExaminationId: "",
+        physicalExaminationItems: "",
+        physicalExaminationResult: "",
+        physicalExaminationTime: "",
+        userId: "",
       },
       formLabelWidth: "120px",
-
+      choose: 0,
       FormSize: 0,
       FormTotal: 0,
       currentPage4: 4,
@@ -132,48 +207,14 @@ export default {
     };
   },
   methods: {
-    //添加用户
-    AddUser() {
-      console.log("添加");
-      this.form = {
-        username: "",
-        phone: "",
-      };
-      this.adddialogFormVisible = true;
-    },
-    //新建用户
-    insert() {
-      console.log(this.form);
-      this.$axios({
-        method: "post",
-        url: "user/insert",
-        data: {
-          username: this.form.username,
-          phone: this.form.phone,
-        },
-      }).then(
-        (res) => {
-          console.log(this.form)
-          console.log(res.data);
-          this.NewForm(this.current, this.size);
-          this.adddialogFormVisible = false;
-          this.$alert("添加成功");
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
-    },
     //删除用户
     confirm(row) {
       console.log(row);
-      this.$axios({
-        method: "get",
-        url: "user/delete",
-        params: {
-          id: row.id,
-        },
-      }).then(
+      let params = {
+        PhysicalExaminationId: row.physicalExaminationId,
+      };
+
+      physicalExaminationDelet(params).then(
         (res) => {
           this.visible = false;
           this.$alert("修改成功");
@@ -186,15 +227,14 @@ export default {
     },
     //确定修改
     determine() {
+      console.log("改前");
       console.log(this.form);
-      this.$axios({
-        method: "post",
-        url: "user/update",
-        data: {
-          username: this.form.username,
-          phone: this.form.phone,
-        },
-      }).then(
+      let data = {
+        physicalExaminationId: this.form.physicalExaminationId,
+        physicalExaminationItems: this.form.physicalExaminationItems,
+        physicalExaminationResult: this.form.physicalExaminationResult,
+      };
+      physicalExaminationUpdate(data).then(
         (res) => {
           console.log(res.data);
           this.NewForm(this.current, this.size);
@@ -206,33 +246,75 @@ export default {
         }
       );
     },
+    //新建用户
+    insert() {
+      console.log(this.form);
+      let data = {
+        userId: this.userId,
+        physicalExaminationItems: this.form.physicalExaminationItems,
+        physicalExaminationResult: this.form.physicalExaminationResult,
+      };
+      physicalExaminationInsert(data).then(
+        (res) => {
+          console.log(this.form);
+          console.log(res.data);
+          this.NewForm(this.current, this.size);
+          this.dialogFormVisible = false;
+          this.$alert("添加成功");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
     //编辑信息
     edit(row) {
+      console.log("修改");
+      this.form = row;
+      this.choose = 1;
       this.dialogFormVisible = true;
-      this.form.id = row.id;
-      this.form.username = row.username;
-      this.form.phone = row.phone;
       console.log(row);
     },
-    //查看详细信息
-    handleClick(row) {
-      console.log(row);
+    //新建信息
+    Oninsert() {
+      console.log("插入");
+      this.choose = 0;
+      console.log(this.choose);
+      this.form = {
+        doctorId: "",
+        physicalExaminationId: "",
+        physicalExaminationItems: "",
+        physicalExaminationResult: "",
+        physicalExaminationTime: "",
+        userId: "",
+      };
+      this.dialogFormVisible = true;
+    },
+    //用户病史
+    MedicalHistory() {
+      console.log("用户病史");
+      this.choose = 2;
+      this.dialogFormVisible = true;
+    },
+    //医生建议
+    suggestion() {
+      console.log("医生建议");
+      this.choose = 3;
+      this.dialogFormVisible = true;
     },
     //更新表单
     NewForm(current, size) {
-      this.$axios({
-        method: "get",
-        url: "user/paging",
-        params: {
-          current: current,
-          size: size,
-        },
-      }).then(
+      let params = {
+        current: current,
+        size: size,
+      };
+      physicalExaminationPaging(params).then(
         (res) => {
           console.log(res.data);
           this.FormSize = res.data.data.size;
           this.FormTotal = res.data.data.total;
           this.tableData = res.data.data.records;
+          console.log(this.tableData);
         },
         (err) => {
           console.log(err);
@@ -242,15 +324,12 @@ export default {
     //查询
     onSubmit() {
       console.log(this.formInline.user);
-      this.$axios({
-        method: "get",
-        url: "user/serch",
-        params: {
-          current: this.current,
-          size: this.size,
-          target: this.formInline.user,
-        },
-      }).then(
+      let params = {
+        current: this.current,
+        size: this.size,
+        target: this.formInline.user,
+      };
+      physicalExaminationSearch(params).then(
         (res) => {
           console.log(res.data);
           this.FormSize = res.data.data.size;
@@ -277,26 +356,22 @@ export default {
   },
   //初始化数据
   mounted() {
-    this.$axios({
-      method: "get",
-      url: "user/paging",
-      params: {
-        current: 1,
-        size: 5,
-      },
-    }).then(
+    let params = {
+      current: 1,
+      size: 5,
+    };
+    physicalExaminationPaging(params).then(
       (res) => {
         console.log(res.data);
         this.FormSize = res.data.data.size;
         this.FormTotal = res.data.data.total;
         this.tableData = res.data.data.records;
-        console.log(this.tableData)
+        console.log(this.tableData);
       },
       (err) => {
         console.log(err);
       }
     );
-    
   },
 };
 </script>

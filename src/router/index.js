@@ -3,13 +3,14 @@ import Router from 'vue-router'
 import Home from '../components/common/Home'
 import PhysicalExamination from '../components/pages/Doctor/PhysicalExamination'
 import MedicalRecord from '../components/pages/Doctor/MedicalRecord'
-import DrugManagement from '../components/pages/Doctor/DrugManagement'
+import MakeAppointment from '../components/pages/Doctor/MakeAppointment'
 import FirstPage from "../components/pages/Administrator/FirstPage";
 import Login from "@/components/common/Login"
 import OldMan from "@/components/pages/Administrator/OldMan"
 import Dishes from "@/components/pages/Canteen/Dishes"
 import Complaint from "@/components/pages/Complaint"
 import Request from "@/components/pages/Administrator/Request"
+import MedicalHistory from "@/components/pages/Doctor/MedicalHistory"
 
 Vue.use(Router)
 
@@ -42,9 +43,9 @@ export default new Router({
                     component: MedicalRecord
                 },
                 {
-                    path: '/DrugManagement',
-                    name: 'DrugManagement',
-                    component: DrugManagement
+                    path: '/MakeAppointment',
+                    name: 'MakeAppointment',
+                    component: MakeAppointment
                 },
                 {
                     path:'/Dishes',
@@ -60,6 +61,11 @@ export default new Router({
                     path:'/Request',
                     name: 'Request',
                     component:Request
+                },
+                {
+                    path:'/MedicalHistory',
+                    name: 'MedicalHistory',
+                    component:MedicalHistory
                 }
             ]
         },

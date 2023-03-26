@@ -10,41 +10,27 @@
       <el-form-item>
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="Oninsert">添加记录</el-button>
-      </el-form-item>
     </el-form>
 
     <el-table :data="tableData">
       <el-table-column type="selection" width="55"> </el-table-column>
       <el-table-column prop="userId" label="用户id" width="180">
       </el-table-column>
-      <el-table-column
-        prop="symptom"
-        label="症状"
-        width="180"
-      >
+      <el-table-column prop="appointmentTime" label="预约时间" width="180">
       </el-table-column>
-      <el-table-column
-        prop="diagnosticResult"
-        label="诊断结果"
-        width="360"
-      >
+      <el-table-column prop="reservationRemarks" label="预约备注" width="360">
       </el-table-column>
-      <el-table-column prop="doctorId" label="医生id" width="180">
-      </el-table-column>
-      <el-table-column
-        prop="seeDoctorTime"
-        label="就诊时间"
-        width="180"
-      >
+      <el-table-column prop="processingResult" label="处理结果" width="360">
       </el-table-column>
 
       <!-- 处理操作 -->
       <el-table-column prop="" label="操作">
         <template slot-scope="scope">
+          <el-button type="text" @click="handleClick(scope.row)" size="small"
+            >查看</el-button
+          >
           <el-button type="text" @click="edit(scope.row)" size="small"
-            >修改</el-button
+            >处理预约</el-button
           >
           <template>
             <el-popconfirm
@@ -67,38 +53,46 @@
 
           <el-dialog :visible.sync="dialogFormVisible">
             <el-form :model="form">
-              <el-form-item v-show="choose == 0" label="用户" :label-width="formLabelWidth">
-                <el-input
-                  v-model="form.userId"
-                  autocomplete="off"
-                ></el-input>
-              </el-form-item>
-              <el-form-item label="症状" :label-width="formLabelWidth">
-                <el-input
-                  v-model="form.symptom"
-                  autocomplete="off"
-                ></el-input>
-              </el-form-item>
-              <el-form-item label="诊断结果" :label-width="formLabelWidth">
-                <el-input
-                  v-model="form.diagnosticResult"
-                  autocomplete="off"
-                ></el-input>
+              <div v-show="choose == 0">
+                <el-form-item label="用户id" :label-width="formLabelWidth">
+                  <div>{{ form.userId }}</div>
+                </el-form-item>
+                <el-form-item label="预约时间" :label-width="formLabelWidth">
+                  <div>{{ form.appointmentTime }}</div>
+                </el-form-item>
+                <el-form-item label="预约备注" :label-width="formLabelWidth">
+                  <div>{{ form.reservationRemarks }}</div>
+                </el-form-item>
+                <el-form-item
+                  label="预约发起时间"
+                  :label-width="formLabelWidth"
+                >
+                  <div>{{ form.initiationTime }}</div>
+                </el-form-item>
+                <el-form-item label="医生id" :label-width="formLabelWidth">
+                  <div>{{ form.doctorId }}</div>
+                </el-form-item>
+                <el-form-item label="处理时间" :label-width="formLabelWidth">
+                  <div>{{ form.processingTime }}</div>
+                </el-form-item>
+              </div>
+              <el-form-item label="处理结果" :label-width="formLabelWidth">
+                <div v-show="choose == 1">
+                  <el-input
+                    v-model="form.processingResult"
+                    autocomplete="off"
+                  ></el-input>
+                </div>
+                <div v-show="choose == 0">{{ form.processingResult }}</div>
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-              
+              <div v-show="choose == 0">
+                <el-button @click="dialogFormVisible = false">关 闭</el-button>
+              </div>
               <div v-show="choose == 1">
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="determine()"
-                  >确 定 修 改</el-button
-                >
-              </div>
-              <div v-show="choose == 0">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="insert()"
-                  >确 定 添 加</el-button
-                >
+                <el-button type="primary" @click="determine()">确 定</el-button>
               </div>
             </div>
           </el-dialog>
@@ -123,12 +117,10 @@
   
   <script>
 import {
-  seeDoctorPaging,
-  seeDoctorSearch,
-  seeDoctorDelet,
-  seeDoctorUpdate,
-  seeDoctorInsert,
-} from "@/http/MedicalRecord";
+  makeAppointmentUpdate,
+  makeAppointmentSearch,
+  makeAppointmentDelet,
+} from "@/http/MakeAppointment";
 export default {
   name: "Request",
   data() {
@@ -136,11 +128,12 @@ export default {
       dialogFormVisible: false,
       //所更新数据
       form: {
-        diagnosticResult: "",
+        appointmentId: "",
+        appointmentTime: "",
         doctorId: "",
-        seeDoctorId: "",
-        seeDoctorTime: "",
-        symptom: "",
+        processingResult: "",
+        initiationTime: "",
+        reservationRemarks: "",
         userId: "",
       },
       formLabelWidth: "120px",
@@ -159,13 +152,12 @@ export default {
   methods: {
     //删除用户
     confirm(row) {
-      console.log("这是row")
       console.log(row);
       let params = {
-        SeeDoctorId: row.seeDoctorId,
+        AppointmentId: row.appointmentId,
       };
 
-      seeDoctorDelet(params).then(
+      makeAppointmentDelet(params).then(
         (res) => {
           this.visible = false;
           this.$alert("修改成功");
@@ -181,11 +173,10 @@ export default {
       console.log("改前");
       console.log(this.form);
       let data = {
-        seeDoctorId:this.form.seeDoctorId,
-        symptom: this.form.symptom,
-        diagnosticResult: this.form.diagnosticResult,
+        appointmentId: this.form.appointmentId,
+        processingResult: this.form.processingResult,
       };
-      seeDoctorUpdate(data).then(
+      makeAppointmentUpdate(data).then(
         (res) => {
           console.log(res.data);
           this.NewForm(this.current, this.size);
@@ -197,56 +188,28 @@ export default {
         }
       );
     },
-    //新建用户
-    insert() {
-      console.log(this.form);
-      let data = {
-        seeDoctorId:this.form.seeDoctorId,
-        symptom: this.form.symptom,
-        diagnosticResult: this.form.diagnosticResult,
-      };
-      seeDoctorInsert(data).then(
-        (res) => {
-          console.log(this.form);
-          console.log(res.data);
-          this.NewForm(this.current, this.size);
-          this.dialogFormVisible = false;
-          this.$alert("添加成功");
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
+    //查看信息
+    handleClick(row) {
+      this.form = row;
+      this.choose = 0;
+      this.dialogFormVisible = true;
+      console.log(row);
     },
     //编辑信息
     edit(row) {
-      console.log("修改")
       this.form = row;
       this.choose = 1;
       this.dialogFormVisible = true;
       console.log(row);
     },
-    Oninsert() {
-      console.log("插入")
-      this.choose = 0;
-      console.log(this.choose)
-      this.form = {
-        doctorId: "",
-        physicalExaminationId: "",
-        physicalExaminationItems: "",
-        physicalExaminationResult: "",
-        physicalExaminationTime: "",
-        userId: "",
-      };
-      this.dialogFormVisible = true;
-    },
     //更新表单
-    NewForm(current, size) {
+    NewForm() {
       let params = {
-        current: current,
-        size: size,
+        current: this.current,
+        size: this.size,
+        target: this.formInline.user,
       };
-      seeDoctorPaging(params).then(
+      makeAppointmentSearch(params).then(
         (res) => {
           console.log(res.data);
           this.FormSize = res.data.data.size;
@@ -267,7 +230,7 @@ export default {
         size: this.size,
         target: this.formInline.user,
       };
-      seeDoctorSearch(params).then(
+      makeAppointmentSearch(params).then(
         (res) => {
           console.log(res.data);
           this.FormSize = res.data.data.size;
@@ -283,22 +246,23 @@ export default {
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
       this.size = val;
-      this.NewForm(this.current, val);
+      this.NewForm();
     },
     //跳转页数
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
       this.current = val;
-      this.NewForm(val, this.size);
+      this.NewForm();
     },
   },
-  //初始化数据 
+  //初始化数据
   mounted() {
     let params = {
       current: 1,
       size: 5,
+      target: this.formInline.user,
     };
-    seeDoctorPaging(params).then(
+    makeAppointmentSearch(params).then(
       (res) => {
         console.log(res.data);
         this.FormSize = res.data.data.size;
