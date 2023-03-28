@@ -10,7 +10,7 @@ import OldMan from "@/components/pages/Administrator/OldMan"
 import Dishes from "@/components/pages/Canteen/Dishes"
 import Complaint from "@/components/pages/Complaint"
 import Request from "@/components/pages/Administrator/Request"
-import MedicalHistory from "@/components/pages/Doctor/MedicalHistory"
+import Abnormal from "@/components/pages/Doctor/Abnormal"
 
 Vue.use(Router)
 
@@ -63,9 +63,9 @@ export default new Router({
                     component:Request
                 },
                 {
-                    path:'/MedicalHistory',
-                    name: 'MedicalHistory',
-                    component:MedicalHistory
+                    path:'/Abnormal',
+                    name: 'Abnormal',
+                    component:Abnormal
                 }
             ]
         },

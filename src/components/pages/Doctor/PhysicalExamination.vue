@@ -32,6 +32,12 @@
       >
       </el-table-column>
       <el-table-column
+        prop="physicalExaminationValue"
+        label="体检数值"
+        width="180"
+      >
+      </el-table-column>
+      <el-table-column
         prop="physicalExaminationResult"
         label="体检结果"
         width="360"
@@ -89,6 +95,12 @@
                     autocomplete="off"
                   ></el-input>
                 </el-form-item>
+                <el-form-item label="体检数值" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="form.physicalExaminationValue"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
                 <el-form-item label="体检结果" :label-width="formLabelWidth">
                   <el-input
                     v-model="form.physicalExaminationResult"
@@ -99,30 +111,45 @@
             </div>
             <!-- 用户病史 -->
             <div v-show="choose == 2">
-              <el-form :model="form">
+              <el-form>
                 <el-form-item label="用户id" :label-width="formLabelWidth">
                   <el-input
-                    v-model="form.physicalExaminationItems"
+                    v-model="diseaseSearch.search"
                     autocomplete="off"
                   ></el-input>
-                  <el-button>查询</el-button>
+                  <el-button @click="disease()">查询</el-button>
                 </el-form-item>
                 <el-form-item label="病史" :label-width="formLabelWidth">
+                  <div v-for="item in diseaseData" :key="item.diseaseId">
+                    病症：{{ item.disease }} 时间：{{ item.diseaseTime }}
+                  </div>
                 </el-form-item>
               </el-form>
             </div>
             <!-- 医生建议 -->
             <div v-show="choose == 3">
-              <el-form :model="form">
+              <el-form :model="advice">
                 <el-form-item label="用户id" :label-width="formLabelWidth">
                   <el-input
-                    v-model="form.physicalExaminationItems"
+                    v-model="advice.addId"
                     autocomplete="off"
                   ></el-input>
                 </el-form-item>
-                <el-form-item label="医生建议" :label-width="formLabelWidth">
+                <el-form-item label="活动建议" :label-width="formLabelWidth">
                   <el-input
-                    v-model="form.physicalExaminationItems"
+                    v-model="advice.activitySuggestion"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="食材推荐" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="advice.IngredientRecommendation"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="食材避免" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="advice.foodAvoidance"
                     autocomplete="off"
                   ></el-input>
                 </el-form-item>
@@ -142,14 +169,42 @@
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
               </div>
               <div v-show="choose == 2">
-                <el-button type="primary" @click="insert()"
+                <el-button
+                  type="primary"
+                  @click="diseaseDialogFormVisible = true"
                   >添 加 病 史</el-button
                 ><el-button @click="dialogFormVisible = false">关 闭</el-button>
               </div>
               <div v-show="choose == 3">
-                <el-button type="primary" @click="insert()">确 定 </el-button
+                <el-button type="primary" @click="addAdvice()">确 定 添加 </el-button
                 ><el-button @click="dialogFormVisible = false">取 消</el-button>
               </div>
+            </div>
+          </el-dialog>
+
+          <el-dialog :visible.sync="diseaseDialogFormVisible">
+            <!-- 添加病史 -->
+            <el-form :model="addDisease">
+              <el-form-item label="用户id" :label-width="formLabelWidth">
+                <el-input
+                  v-model="addDisease.addId"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="疾病名称" :label-width="formLabelWidth">
+                <el-input
+                  v-model="addDisease.addDisease"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+            </el-form>
+
+            <div slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="addDiseaseInsert()"
+                >确 定 添 加</el-button
+              ><el-button @click="diseaseDialogFormVisible = false"
+                >取 消</el-button
+              >
             </div>
           </el-dialog>
         </template>
@@ -179,11 +234,14 @@ import {
   physicalExaminationUpdate,
   physicalExaminationInsert,
 } from "@/http/PhysicalExamination";
+import { doctorAdviceInsert } from "@/http/doctorAdvice";
+import { diseaseInsert, diseaseSearch } from "@/http/disease";
 export default {
   name: "Request",
   data() {
     return {
       dialogFormVisible: false,
+      diseaseDialogFormVisible: false,
       //所更新数据
       form: {
         doctorId: "",
@@ -192,7 +250,9 @@ export default {
         physicalExaminationResult: "",
         physicalExaminationTime: "",
         userId: "",
+        physicalExaminationValue:""
       },
+      adviceForm: {},
       formLabelWidth: "120px",
       choose: 0,
       FormSize: 0,
@@ -203,7 +263,21 @@ export default {
       formInline: {
         user: "",
       },
+      diseaseSearch: {
+        search: "",
+      },
+      addDisease: {
+        addId: "",
+        addDisease: "",
+      },
+      advice:{
+        addId: "",
+        activitySuggestion: "",
+        IngredientRecommendation: "",
+        foodAvoidance: "",
+      },
       tableData: [],
+      diseaseData: {},
     };
   },
   methods: {
@@ -260,6 +334,50 @@ export default {
           console.log(res.data);
           this.NewForm(this.current, this.size);
           this.dialogFormVisible = false;
+          this.$alert("添加成功");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
+    //新建病史数据
+    addDiseaseInsert() {
+      console.log("添加病史");
+      console.log(this.addDisease);
+      let data = {
+        userId: this.addDisease.addId,
+        disease: this.addDisease.addDisease,
+      };
+      diseaseInsert(data).then(
+        (res) => {
+          console.log(this.form);
+          console.log(res.data);
+          this.NewForm(this.current, this.size);
+          this.disease()
+          this.diseaseDialogFormVisible = false;
+          this.$alert("添加成功");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
+    //新建医生建议
+    addAdvice() {
+      console.log("添加医生建议");
+      console.log(this.advice);
+      let data = {
+        userId: this.advice.addId,
+        activitySuggestion: this.advice.activitySuggestion,
+        IngredientRecommendation: this.advice.IngredientRecommendation,
+        foodAvoidance: this.advice.foodAvoidance
+      };
+      doctorAdviceInsert(data).then(
+        (res) => {
+          console.log(this.advice);
+          console.log(res.data);
+
           this.$alert("添加成功");
         },
         (err) => {
@@ -335,6 +453,26 @@ export default {
           this.FormSize = res.data.data.size;
           this.FormTotal = res.data.data.total;
           this.tableData = res.data.data.records;
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
+    //查询病史
+    disease() {
+      console.log(this.formInline.user);
+      let params = {
+        current: this.current,
+        size: this.size,
+        target: this.diseaseSearch.search,
+      };
+      diseaseSearch(params).then(
+        (res) => {
+          console.log("病史");
+          console.log(res.data);
+          this.diseaseData = res.data.data.records;
+          // console.log(this.diseaseData);
         },
         (err) => {
           console.log(err);

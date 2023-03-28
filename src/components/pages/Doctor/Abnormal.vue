@@ -8,10 +8,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">病史查询</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="Oninsert">添加记录</el-button>
+          <el-button type="primary" @click="onSubmit">异常查询</el-button>
         </el-form-item>
       </el-form>
   
@@ -20,22 +17,20 @@
         <el-table-column prop="userId" label="用户id" width="180">
         </el-table-column>
         <el-table-column
-          prop="symptom"
-          label="症状"
+          prop="abnormalItem"
+          label="异常项目"
           width="180"
         >
         </el-table-column>
         <el-table-column
-          prop="diagnosticResult"
-          label="诊断结果"
+          prop="abnormalValue"
+          label="异常数据"
           width="360"
         >
         </el-table-column>
-        <el-table-column prop="doctorId" label="医生id" width="180">
-        </el-table-column>
         <el-table-column
-          prop="seeDoctorTime"
-          label="就诊时间"
+          prop="abnormalTime"
+          label="生成时间"
           width="180"
         >
         </el-table-column>
@@ -123,12 +118,12 @@
     
     <script>
   import {
-    seeDoctorPaging,
-    seeDoctorSearch,
-    seeDoctorDelet,
-    seeDoctorUpdate,
-    seeDoctorInsert,
-  } from "@/http/MedicalRecord";
+    abnormalUpdate,
+    abnormalInsert,
+    abnormalSearch,
+    abnormalPaging,
+    abnormalDelet,
+  } from "@/http/abnormal";
   export default {
     name: "Request",
     data() {
@@ -226,27 +221,13 @@
         this.dialogFormVisible = true;
         console.log(row);
       },
-      Oninsert() {
-        console.log("插入")
-        this.choose = 0;
-        console.log(this.choose)
-        this.form = {
-          doctorId: "",
-          physicalExaminationId: "",
-          physicalExaminationItems: "",
-          physicalExaminationResult: "",
-          physicalExaminationTime: "",
-          userId: "",
-        };
-        this.dialogFormVisible = true;
-      },
       //更新表单
       NewForm(current, size) {
         let params = {
           current: current,
           size: size,
         };
-        seeDoctorPaging(params).then(
+        abnormalPaging(params).then(
           (res) => {
             console.log(res.data);
             this.FormSize = res.data.data.size;
@@ -267,7 +248,7 @@
           size: this.size,
           target: this.formInline.user,
         };
-        seeDoctorSearch(params).then(
+        abnormalSearch(params).then(
           (res) => {
             console.log(res.data);
             this.FormSize = res.data.data.size;
@@ -298,7 +279,7 @@
         current: 1,
         size: 5,
       };
-      seeDoctorPaging(params).then(
+      abnormalPaging(params).then(
         (res) => {
           console.log(res.data);
           this.FormSize = res.data.data.size;

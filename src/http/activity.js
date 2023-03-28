@@ -12,6 +12,8 @@ export const activityInsert = (params) => api.post(`activity/insert`, params)
 
 
 
+//按名字或id查找
+export const activitySearch = (params) => api.get(`activity/search`,{params})
 
 //分页查询信息
 export const activityPaging = (params) => api.get(`activity/paging`,{params})

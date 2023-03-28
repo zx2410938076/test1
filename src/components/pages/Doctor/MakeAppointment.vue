@@ -18,9 +18,11 @@
       </el-table-column>
       <el-table-column prop="appointmentTime" label="预约时间" width="180">
       </el-table-column>
-      <el-table-column prop="reservationRemarks" label="预约备注" width="360">
+      <el-table-column prop="reservationRemarks" label="预约备注" width="200">
       </el-table-column>
-      <el-table-column prop="processingResult" label="处理结果" width="360">
+      <el-table-column prop="processingResult" label="处理结果" width="180">
+      </el-table-column>
+      <el-table-column prop="processingRemarks" label="处理备注" width="250">
       </el-table-column>
 
       <!-- 处理操作 -->
@@ -85,6 +87,15 @@
                 </div>
                 <div v-show="choose == 0">{{ form.processingResult }}</div>
               </el-form-item>
+              <el-form-item label="处理备注" :label-width="formLabelWidth">
+                <div v-show="choose == 1">
+                  <el-input
+                    v-model="form.processingRemarks"
+                    autocomplete="off"
+                  ></el-input>
+                </div>
+                <div v-show="choose == 0">{{ form.processingRemarks }}</div>
+              </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
               <div v-show="choose == 0">
@@ -135,6 +146,7 @@ export default {
         initiationTime: "",
         reservationRemarks: "",
         userId: "",
+        processingRemarks:""
       },
       formLabelWidth: "120px",
       choose: 0,
