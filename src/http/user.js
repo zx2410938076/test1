@@ -20,6 +20,8 @@ export const Search = (params) => api.get(`user/search`,{params})
 export const Paging = (params) => api.get(`user/paging`,{params})
 //删除用户
 export const Delet = (params) => api.get(`user/delete`,{params})
+//根据token获取用户
+export const GetName = (params) => api.get(`user/getName`,{params})
 
 
 

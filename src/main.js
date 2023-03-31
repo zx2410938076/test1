@@ -26,7 +26,7 @@ axios.interceptors.request.use(config =>{
 
 /** 使用router钩子函数来处理 */
 router.beforeEach((to, from, next) => {
-  const username = sessionStorage.getItem('username')
+  const username = sessionStorage.getItem('token')
   if (to.name !== 'login' && !username) next({ name: 'login' })
   else next()
 })

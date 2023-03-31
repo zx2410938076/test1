@@ -347,6 +347,7 @@ export default {
       this.state = 0;
       this.onSubmit();
     },
+    //投诉
     onSubmit() {
       let params = {
         current: 1,
@@ -369,7 +370,9 @@ export default {
     },
   },
   mounted() {
-    this.username = sessionStorage.getItem("username");
+    this.username = this.$store.state.role.userName
+    console.log("用户名")
+    console.log(this.$store.state.role.userName)
     var myecharts = echarts.init(this.$refs.echarts);
     var option = {
       xAxis: {

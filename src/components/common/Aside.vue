@@ -59,7 +59,7 @@
 </style>
 
 <script>
-import{Reacquire}from "@/http/user"
+import{Reacquire,GetName}from "@/http/user"
 export default {
   name: "Aside",
   data() {
@@ -176,14 +176,15 @@ export default {
     if (this.role == null) {
       //console.log("role为空");
       let params = {
-        userName:sessionStorage.getItem("username")
+        Authorization:sessionStorage.getItem("token")
       }
 
-      Reacquire(params).then(
+      GetName(params).then(
         (res) => {
+          console.log("这是res")
           console.log(res)
-          this.$store.commit("newrole", res.data.data[0].authority);
-          this.role = res.data.data[0].authority;
+          this.$store.commit("newUser", res.data.data);
+          this.role = res.data.data.authority;
           //console.log("改后权限" + this.role);
           //console.log(this.menuData);
           this.menuData = this.menuData.filter((item, index, self) => {
