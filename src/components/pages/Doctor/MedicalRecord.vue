@@ -102,30 +102,21 @@
             </div>
             <!-- 医生建议 -->
             <div v-show="choose == 3">
-              <el-form :model="advice">
+              <el-form>
                 <el-form-item label="用户id" :label-width="formLabelWidth">
                   <el-input
-                    v-model="advice.addId"
+                    v-model="diseaseSearch.search"
                     autocomplete="off"
                   ></el-input>
+                  <el-button @click="searchAdvice()">查询</el-button>
                 </el-form-item>
-                <el-form-item label="活动建议" :label-width="formLabelWidth">
-                  <el-input
-                    v-model="advice.activitySuggestion"
-                    autocomplete="off"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item label="食材推荐" :label-width="formLabelWidth">
-                  <el-input
-                    v-model="advice.IngredientRecommendation"
-                    autocomplete="off"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item label="食材避免" :label-width="formLabelWidth">
-                  <el-input
-                    v-model="advice.foodAvoidance"
-                    autocomplete="off"
-                  ></el-input>
+                <el-form-item label="医生建议" :label-width="formLabelWidth">
+                  <div v-for="item in adviceData" :key="item.adviceId">
+                    <div>建议活动：{{ item.activitySuggestion }}</div>
+                    <div>建议食用：{{ item.ingredientRecommendation }}</div>
+                    <div>建议避免食用：{{ item.foodAvoidance }}</div>
+                    <div>建议时间：{{ item.suggestedTime }}</div>
+                  </div>
                 </el-form-item>
               </el-form>
             </div>
@@ -151,9 +142,71 @@
                 ><el-button @click="dialogFormVisible = false">关 闭</el-button>
               </div>
               <div v-show="choose == 3">
-                <el-button type="primary" @click="addAdvice()">确 定 添加 </el-button
+                <el-button type="primary" @click="adviceDialogFormVisible = true">添 加 建 议 </el-button
                 ><el-button @click="dialogFormVisible = false">取 消</el-button>
               </div>
+            </div>
+          </el-dialog>
+          <el-dialog :visible.sync="diseaseDialogFormVisible">
+            <!-- 添加病史 -->
+            <el-form :model="addDisease">
+              <el-form-item label="用户id" :label-width="formLabelWidth">
+                <el-input
+                  v-model="addDisease.addId"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="疾病名称" :label-width="formLabelWidth">
+                <el-input
+                  v-model="addDisease.addDisease"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+            </el-form>
+
+            <div slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="addDiseaseInsert()"
+                >确 定 添 加</el-button
+              ><el-button @click="diseaseDialogFormVisible = false"
+                >取 消</el-button
+              >
+            </div>
+          </el-dialog>
+          <el-dialog :visible.sync="adviceDialogFormVisible">
+            <!-- 添加建议 -->
+            <el-form :model="advice">
+                <el-form-item label="用户id" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="advice.addId"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="活动建议" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="advice.activitySuggestion"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="食材推荐" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="advice.IngredientRecommendation"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="食材避免" :label-width="formLabelWidth">
+                  <el-input
+                    v-model="advice.foodAvoidance"
+                    autocomplete="off"
+                  ></el-input>
+                </el-form-item>
+              </el-form>
+
+            <div slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="addAdvice()"
+                >确 定 添 加</el-button
+              ><el-button @click="adviceDialogFormVisible = false"
+                >取 消</el-button
+              >
             </div>
           </el-dialog>
         </template>
@@ -183,7 +236,7 @@ import {
   seeDoctorUpdate,
   seeDoctorInsert,
 } from "@/http/MedicalRecord";
-import { doctorAdviceInsert } from "@/http/doctorAdvice";
+import { doctorAdviceInsert,doctorAdviceSearch } from "@/http/doctorAdvice";
 import { diseaseInsert, diseaseSearch } from "@/http/disease";
 export default {
   name: "Request",
@@ -191,6 +244,7 @@ export default {
     return {
       dialogFormVisible: false,
       diseaseDialogFormVisible: false,
+      adviceDialogFormVisible:false,
       //所更新数据
       form: {
         diagnosticResult: "",
@@ -226,6 +280,7 @@ export default {
       },
       tableData: [],
       diseaseData: {},
+      adviceData:{}
     };
   },
   methods: {
@@ -320,13 +375,15 @@ export default {
         userId: this.advice.addId,
         activitySuggestion: this.advice.activitySuggestion,
         IngredientRecommendation: this.advice.IngredientRecommendation,
-        foodAvoidance: this.advice.foodAvoidance
+        foodAvoidance: this.advice.foodAvoidance,
+        state:1
       };
       doctorAdviceInsert(data).then(
         (res) => {
           console.log(this.advice);
           console.log(res.data);
-
+          this.adviceDialogFormVisible = false,
+          this.searchAdvice()
           this.$alert("添加成功");
         },
         (err) => {
@@ -409,7 +466,7 @@ export default {
       );
     },
         //查询病史
-        disease() {
+    disease() {
       console.log(this.formInline.user);
       let params = {
         current: this.current,
@@ -422,6 +479,26 @@ export default {
           console.log(res.data);
           this.diseaseData = res.data.data.records;
           // console.log(this.diseaseData);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
+    //查询建议
+    searchAdvice(){
+      console.log(this.formInline.user);
+      let params = {
+        current: this.current,
+        size: this.size,
+        target: this.diseaseSearch.search,
+      };
+      doctorAdviceSearch(params).then(
+        (res) => {
+          console.log("建议");
+          console.log(res.data);
+          this.adviceData = res.data.data.records;
+          console.log(this.adviceData);
         },
         (err) => {
           console.log(err);

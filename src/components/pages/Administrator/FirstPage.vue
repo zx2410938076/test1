@@ -19,6 +19,7 @@
               <div style="display: flex; flex: 10">{{ "列表内容 " + o }}</div>
             </div>
           </el-card>
+          <!-- 投诉信息 -->
           <el-card style="height: 315px; margin-top: 20px">
             <div slot="header" class="clearfix">
               <span>投诉/反馈</span>
@@ -52,6 +53,7 @@
       >
       <el-col :span="16">
         <div class="grid-content bg-purple-light">
+          <!-- 活动信息 -->
           <el-card
             style="height: 350px"
             v-if="this.$store.state.role.role == 'community'"
@@ -107,6 +109,21 @@
                   ></el-input>
                   <div v-show="choose == 1">{{ form.activityProfile }}</div>
                 </el-form-item>
+                <el-form-item label="活动图片" :label-width="formLabelWidth">
+                  <el-upload
+                  ref="upload"
+                  action="http://localhost:9999/file/upLoad"
+                  :limit="1"
+                  :on-success="handleUploadSuccess"
+                  :before-upload="beforeUpload"
+                >
+                  <el-button size="small" type="primary">点击上传</el-button>
+                  <div slot="tip" class="el-upload__tip">
+                    只能上传jpg/png文件，且不超过2M
+                  </div>
+                </el-upload>
+                </el-form-item>
+                
               </el-form>
               <div slot="footer" class="dialog-footer">
                 <div v-show="choose == 1">
@@ -171,7 +188,100 @@
               </el-pagination>
             </div>
           </el-card>
-
+          <!-- //预约信息 -->
+          <el-card
+            style="height: 250px; margin-top: 20px"
+            v-if="this.$store.state.role.role == 'doctor'"
+          >
+            <div
+              slot="header"
+              class="clearfix"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <p style="display: flex">预约信息</p>
+              <div style="display: flex">
+                <div>
+                  <el-date-picker
+                    v-model="day"
+                    type="date"
+                    placeholder="选择日期"
+                    format="yyyy 年 MM 月 dd 日"
+                    value-format="yyyy-MM-dd"
+                    @change="searchDay()"
+                  >
+                  </el-date-picker>
+                </div>
+                <el-button type="primary" style="margin-left: 30px" @click="set"
+                  >预约设置</el-button
+                >
+              </div>
+            </div>
+            <div>
+              <div v-for="item in Appointment" :key="item.appointmentId">
+                {{ item.appointmentTime.split(",")[1] }}
+                {{ item.userId }}
+                {{ item.reservationRemarks }}
+              </div>
+            </div>
+          </el-card>
+          <!-- 预约信息展示修改 -->
+          <el-dialog title="预约信息" :visible.sync="ReservationSetting">
+            <div>
+              <div>
+                预约时间
+                <el-time-select
+                  v-model="starTime"
+                  :picker-options="{
+                    start: '08:00',
+                    step: '00:15',
+                    end: '18:30',
+                  }"
+                  placeholder="选择开始时间"
+                >
+                </el-time-select>
+                ——
+                <el-time-select
+                  v-model="endTime"
+                  :picker-options="{
+                    start: '08:30',
+                    step: '00:15',
+                    end: '18:30',
+                  }"
+                  placeholder="选择结束时间"
+                >
+                </el-time-select>
+              </div>
+              <div>
+                预约数量
+                <input
+                  type="text"
+                  placeholder="请输入预约数量"
+                  v-model="hospitalAppointmentForm.hospitalAppointmentNumber"
+                />
+              </div>
+              <el-button @click="addHospitalAppointment">添 加</el-button>
+            </div>
+            <div
+              v-for="item in hospitalAppointment"
+              :key="item.hospitalAppointmentId"
+            >
+              <div style="display: flex">
+                <div style="display: flex">
+                  <div>预约时间：{{ item.hospitalAppointmentTime }}</div>
+                  <div>预约数量：{{ item.hospitalAppointmentNumber }}</div>
+                  <div @click="deleteHospitalAppointment(item)">删除</div>
+                </div>
+              </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="ReservationSetting = false">关 闭</el-button>
+            </span>
+          </el-dialog>
+          <!-- 健康统计 -->
           <el-card style="height: 250px; margin-top: 20px">
             <div slot="header" class="clearfix">
               <p style="display: flex">健康统计</p>
@@ -192,13 +302,19 @@ import {
   activityDelet,
 } from "@/http/activity";
 import { complaintSearch } from "@/http/complaint";
+import {
+  hospitalAppointmentPaging,
+  hospitalAppointmentDelet,
+  hospitalAppointmentInsert,
+} from "@/http/hospitalAppointment";
+import { makeAppointmentSearch } from "@/http/MakeAppointment";
 export default {
   name: "Index",
   data() {
     return {
       username: null,
       activityForm: {},
-      state:0,
+      state: 0,
       form: {
         activityId: null,
         activityName: null,
@@ -206,6 +322,7 @@ export default {
         activityLocation: null,
         responsiblePerson: null,
         activityProfile: null,
+        activityPic:null
       },
       complaintform: {},
       choose: 0, //0为输入模式，1为展示
@@ -216,12 +333,44 @@ export default {
       current: 1,
       size: 3,
       announcementMenu: false,
+      ReservationSetting: false,
       announcementMenuType: 0, //0为添加1 为修改
+      hospitalAppointment: {},
+      hospitalAppointmentForm: {
+        hospitalAppointmentTime: null,
+        hospitalAppointmentNumber: null,
+      },
+      starTime: "",
+      endTime: "",
+      day: new Date(),
+      Appointment: {},
     };
   },
   methods: {
-    toComplaint(res){
-      this.$router.push({ name: 'Complaint', params: { state: this.state,target:res.userId}});
+    //获取后端返回的图片url
+    handleUploadSuccess(res){
+      console.log(res)
+      this.form.activityPic = res.data
+      console.log(this.form.activityPic)
+    },
+    //图片上传时限制大小
+    beforeUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
+    toComplaint(res) {
+      this.$router.push({
+        name: "Complaint",
+        params: { state: this.state, target: res.userId },
+      });
     },
     //打开新建页面
     addActivity() {
@@ -234,6 +383,7 @@ export default {
         responsiblePerson: null,
         activityProfile: null,
       };
+      // this.$refs['upload'].clearFiles(); //清除历史文件列表
       this.announcementMenu = true;
       this.announcementMenuType = 0;
     },
@@ -280,14 +430,7 @@ export default {
     //新建用户
     insert() {
       console.log(this.form);
-      let data = {
-        activityName: this.form.activityName,
-        activityTime: this.form.activityTime,
-        activityLocation: this.form.activityLocation,
-        responsiblePerson: this.form.responsiblePerson,
-        activityProfile: this.form.activityProfile,
-      };
-      activityInsert(data).then(
+      activityInsert(this.form).then(
         (res) => {
           this.NewForm(this.current, this.size);
           this.announcementMenu = false;
@@ -338,6 +481,69 @@ export default {
         }
       );
     },
+    //打开预约设置界面
+    set() {
+      this.ReservationSetting = true;
+      this.HospitalAppointmentPaging();
+    },
+    //新增预约设置信息
+    addHospitalAppointment() {
+      let data = {
+        hospitalAppointmentTime: this.starTime + " - " + this.endTime,
+        hospitalAppointmentNumber:
+          this.hospitalAppointmentForm.hospitalAppointmentNumber,
+      };
+      hospitalAppointmentInsert(data).then(
+        (res) => {
+          this.HospitalAppointmentPaging();
+          this.$alert("添加成功");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
+    //删除预约设置
+    deleteHospitalAppointment(item) {
+      let data = {
+        hospitalAppointmentId: item.hospitalAppointmentId,
+      };
+      hospitalAppointmentDelet(data).then(
+        (res) => {
+          this.HospitalAppointmentPaging();
+          this.$alert("删除成功");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
+    searchDay() {
+      this.AppointmentSearch();
+    },
+    //查找预约成功的信息
+    AppointmentSearch() {
+      let params = {
+        current: 1,
+        size: 5,
+        target: "",
+        state: 1,
+        day: this.day,
+      };
+      makeAppointmentSearch(params).then(
+        (res) => {
+          console.log(res.data);
+          this.FormSize = res.data.data.size;
+          this.FormTotal = res.data.data.total;
+          this.Appointment = res.data.data.records;
+          console.log("预约信息");
+          console.log(this.Appointment);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
     processed() {
       this.state = 1;
       this.onSubmit();
@@ -368,11 +574,27 @@ export default {
         }
       );
     },
+    //预约数据
+    HospitalAppointmentPaging() {
+      let params = {};
+      hospitalAppointmentPaging(params).then(
+        (res) => {
+          console.log("这是设置预约数据");
+          console.log(res.data);
+          this.hospitalAppointment = res.data.data;
+          console.log("这是设置预约信息数据");
+          console.log(this.hospitalAppointment);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
   },
   mounted() {
-    this.username = this.$store.state.role.userName
-    console.log("用户名")
-    console.log(this.$store.state.role.userName)
+    this.username = this.$store.state.role.userName;
+    console.log("用户名");
+    console.log(this.$store.state.role.userName);
     var myecharts = echarts.init(this.$refs.echarts);
     var option = {
       xAxis: {
@@ -392,6 +614,7 @@ export default {
     myecharts.setOption(option);
     this.NewForm(this.current, this.size);
     this.onSubmit();
+    console.log(this.day);
   },
 };
 </script>

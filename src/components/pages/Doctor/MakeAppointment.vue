@@ -8,6 +8,22 @@
         ></el-input>
       </el-form-item>
       <el-form-item>
+        <el-dropdown>
+          <span class="el-dropdown-link"
+            >{{ state ? "已同意" : "未同意"
+            }}<i class="el-icon-arrow-down el-icon--right"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item @click.native="processed()"
+              >已同意</el-dropdown-item
+            >
+            <el-dropdown-item @click.native="unprocessed()"
+              >未同意</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-form-item>
+      <el-form-item>
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
     </el-form>
@@ -16,7 +32,7 @@
       <el-table-column type="selection" width="55"> </el-table-column>
       <el-table-column prop="userId" label="用户id" width="180">
       </el-table-column>
-      <el-table-column prop="appointmentTime" label="预约时间" width="180">
+      <el-table-column prop="appointmentTime" label="预约时间" width="200">
       </el-table-column>
       <el-table-column prop="reservationRemarks" label="预约备注" width="200">
       </el-table-column>
@@ -159,9 +175,19 @@ export default {
         user: "",
       },
       tableData: [],
+      state:0
     };
   },
   methods: {
+    processed() {
+      this.state = 1;
+      this.NewForm();
+    },
+    unprocessed() {
+      console.log("未处理");
+      this.state = 0;
+      this.NewForm();
+    },
     //删除用户
     confirm(row) {
       console.log(row);
@@ -220,10 +246,13 @@ export default {
         current: this.current,
         size: this.size,
         target: this.formInline.user,
+        state:this.state,
+        day:""
       };
       makeAppointmentSearch(params).then(
         (res) => {
           console.log(res.data);
+          console.log(this.state)
           this.FormSize = res.data.data.size;
           this.FormTotal = res.data.data.total;
           this.tableData = res.data.data.records;
@@ -241,6 +270,8 @@ export default {
         current: this.current,
         size: this.size,
         target: this.formInline.user,
+        state:this.state,
+        day:""
       };
       makeAppointmentSearch(params).then(
         (res) => {
@@ -273,6 +304,8 @@ export default {
       current: 1,
       size: 5,
       target: this.formInline.user,
+      state:this.state,
+      day:""
     };
     makeAppointmentSearch(params).then(
       (res) => {

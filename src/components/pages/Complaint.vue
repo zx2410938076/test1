@@ -30,7 +30,7 @@
 
     <el-table :data="tableData">
       <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column prop="userId" label="用户id" width="180">
+      <el-table-column prop="userName" label="投诉人" width="180">
       </el-table-column>
       <el-table-column prop="complaintDepartment" label="投诉部门" width="180">
       </el-table-column>

@@ -3,9 +3,11 @@
     <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
       <span>{{ RequestData.userName }}</span>
       <span slot="footer" class="dialog-footer">
-    <el-button @click="dialogTableVisible = false">取 消</el-button>
-    <el-button type="primary" @click="dialogTableVisible = false">确 定</el-button>
-  </span>
+        <el-button @click="dialogTableVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogTableVisible = false"
+          >确 定</el-button
+        >
+      </span>
     </el-dialog>
     <el-container>
       <el-aside width="auto">
@@ -22,7 +24,6 @@
         </el-main>
       </el-container>
     </el-container>
-    
   </div>
 </template>
 
@@ -30,7 +31,7 @@
 import Aside from "@/components/common/Aside.vue";
 import Header from "@/components/common/Header.vue";
 import CommonTab from "@/components/common/CommonTab.vue";
-import{Search}from "@/http/user"
+import { Search } from "@/http/user";
 export default {
   name: "HelloWorld",
   data() {
@@ -47,35 +48,42 @@ export default {
   },
   methods: {
     connectWebsocket() {
-      let websocket;
-      if (typeof WebSocket === "undefined") {
-        console.log("您的浏览器不支持WebSocket");
-        return;
-      } else {
-        // 打开一个websocket
-        websocket = new WebSocket("ws://localhost:9999/webSocket/" + this.UUID);
-        console.log(websocket);
-        // 建立连接
-        websocket.onopen = () => {
-          // 发送数据
-          // websocket.send("发送数据");
-          console.log("websocket发送数据中");
-        };
-        // 客户端接收服务端返回的数据
-        websocket.onmessage = (evt) => {
-          console.log("websocket返回的数据：", evt);
-          console.log("获得异常");
-          this.onSubmit(evt.data)
-          this.dialogTableVisible = true
-        };
-        // 发生错误时
-        websocket.onerror = (evt) => {
-          console.log("websocket错误了：", evt);
-        };
-        // 关闭连接
-        websocket.onclose = (evt) => {
-          console.log("websocket关闭：", evt);
-        };
+      if (
+        this.$store.state.role.role == "doctor" ||
+        this.$store.state.role.role == "community"
+      ) {
+        let websocket;
+        if (typeof WebSocket === "undefined") {
+          console.log("您的浏览器不支持WebSocket");
+          return;
+        } else {
+          // 打开一个websocket
+          websocket = new WebSocket(
+            "ws://localhost:9999/webSocket/" + this.UUID
+          );
+          console.log(websocket);
+          // 建立连接
+          websocket.onopen = () => {
+            // 发送数据
+            // websocket.send("发送数据");
+            console.log("websocket发送数据中");
+          };
+          // 客户端接收服务端返回的数据
+          websocket.onmessage = (evt) => {
+            console.log("websocket返回的数据：", evt);
+            console.log("获得异常");
+            this.onSubmit(evt.data);
+            this.dialogTableVisible = true;
+          };
+          // 发生错误时
+          websocket.onerror = (evt) => {
+            console.log("websocket错误了：", evt);
+          };
+          // 关闭连接
+          websocket.onclose = (evt) => {
+            console.log("websocket关闭：", evt);
+          };
+        }
       }
     },
     getUUID() {
@@ -90,22 +98,22 @@ export default {
       );
     },
     onSubmit(id) {
-      let params= {
-            current: 1,
-            size: 1,
-            target: id,
-          }
-          Search(params).then(
-          (res) => {
-            console.log(res.data);
-            console.log("home里的search")
-            this.RequestData = res.data.data.records[0]
-          },
-          (err) => {
-            console.log(err);
-          }
-        );
-      },
+      let params = {
+        current: 1,
+        size: 1,
+        target: id,
+      };
+      Search(params).then(
+        (res) => {
+          console.log(res.data);
+          console.log("home里的search");
+          this.RequestData = res.data.data.records[0];
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
   },
   mounted() {
     this.connectWebsocket();

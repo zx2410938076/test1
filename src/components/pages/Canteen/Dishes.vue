@@ -25,6 +25,7 @@
       </el-table-column>
       <el-table-column prop="dishPrice" label="菜品价格" width="180">
       </el-table-column>
+      <el-table-column prop="week" label="日期" width="180"> </el-table-column>
 
       <!-- 处理操作 -->
       <el-table-column prop="" label="操作">
@@ -52,33 +53,50 @@
           </template>
 
           <el-dialog :visible.sync="dialogFormVisible">
-              <el-form :model="form">
-                <el-form-item
-                  label="菜品名称"
-                  :label-width="formLabelWidth"
-                >
-                  <el-input v-model="form.dishName" autocomplete="off" v-show="choose == 0"></el-input>
-                  <div v-show="choose == 1">{{ form.dishName }}</div>
-                </el-form-item>
-                <el-form-item label="菜品类型" :label-width="formLabelWidth">
-                  <el-input
+            <el-form :model="form">
+              <el-form-item label="菜品名称" :label-width="formLabelWidth">
+                <el-input
+                  v-model="form.dishName"
+                  autocomplete="off"
+                  v-show="choose == 0"
+                ></el-input>
+                <div v-show="choose == 1">{{ form.dishName }}</div>
+              </el-form-item>
+              <el-form-item label="菜品类型" :label-width="formLabelWidth">
+                <!-- <el-input
                     v-model="form.dishType"
                     autocomplete="off"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item label="主要原料" :label-width="formLabelWidth">
-                  <el-input
-                    v-model="form.rawMaterial"
-                    autocomplete="off"
-                  ></el-input>
-                </el-form-item>
-                <el-form-item label="菜品价格" :label-width="formLabelWidth">
-                  <el-input
-                    v-model="form.dishPrice"
-                    autocomplete="off"
-                  ></el-input>
-                </el-form-item>
-              </el-form>
+                  ></el-input> -->
+                <el-checkbox-group v-model="dishTypeList">
+                  <el-checkbox label="早餐"></el-checkbox>
+                  <el-checkbox label="午餐"></el-checkbox>
+                  <el-checkbox label="晚餐"></el-checkbox>
+                </el-checkbox-group>
+              </el-form-item>
+              <el-form-item label="主要原料" :label-width="formLabelWidth">
+                <el-input
+                  v-model="form.rawMaterial"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="菜品价格" :label-width="formLabelWidth">
+                <el-input
+                  v-model="form.dishPrice"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="日期" :label-width="formLabelWidth">
+                <el-checkbox-group v-model="weekList">
+                  <el-checkbox label="星期一"></el-checkbox>
+                  <el-checkbox label="星期二"></el-checkbox>
+                  <el-checkbox label="星期三"></el-checkbox>
+                  <el-checkbox label="星期四"></el-checkbox>
+                  <el-checkbox label="星期五"></el-checkbox>
+                  <el-checkbox label="星期六"></el-checkbox>
+                  <el-checkbox label="星期日"></el-checkbox>
+                </el-checkbox-group>
+              </el-form-item>
+            </el-form>
 
             <div slot="footer" class="dialog-footer">
               <div v-show="choose == 1">
@@ -146,6 +164,9 @@ export default {
         user: "",
       },
       tableData: [],
+      week:"",
+      dishTypeList: [],
+      weekList:[] 
     };
   },
   methods: {
@@ -172,12 +193,27 @@ export default {
     determine() {
       console.log("改前");
       console.log(this.form);
+      console.log(this.dishTypeList)
+      console.log(this.weekList)
+      this.form.dishType= ""
+      for (let index = 0; index < this.dishTypeList.length-1; index++) {
+        this.form.dishType =this.form.dishType + this.dishTypeList[index]+",";        
+      }
+      this.form.dishType =this.form.dishType + this.dishTypeList[length]
+
+      this.week= ""
+      for (let index = 0; index < this.weekList.length; index++) {
+        this.week =this.week + this.weekList[index]+",";        
+      }
+      this.week = this.week.slice(0, -1);
+      console.log(this.week)
       let data = {
         dishId: this.form.dishId,
         dishName: this.form.dishName,
         dishPrice: this.form.dishPrice,
         dishType: this.form.dishType,
-        rawMaterial: this.form.rawMaterial
+        rawMaterial: this.form.rawMaterial,
+        week:this.week
       };
       dishUpdate(data).then(
         (res) => {
@@ -193,12 +229,27 @@ export default {
     },
     //新建用户
     insert() {
+      console.log("改前");
       console.log(this.form);
+      console.log(this.dishTypeList)
+      console.log(this.weekList)
+      this.form.dishType= ""
+      for (let index = 0; index < this.dishTypeList.length; index++) {
+        this.form.dishType =this.form.dishType + this.dishTypeList[index]+",";        
+      }
+      this.form.dishType = this.form.dishType.slice(0, -1);
+      this.week= ""
+      for (let index = 0; index < this.weekList.length; index++) {
+        this.week =this.week + this.weekList[index]+",";        
+      }
+      this.week = this.week.slice(0, -1);
+      console.log(this.week)
       let data = {
         dishName: this.form.dishName,
         dishPrice: this.form.dishPrice,
         dishType: this.form.dishType,
-        rawMaterial: this.form.rawMaterial
+        rawMaterial: this.form.rawMaterial,
+        week:this.week
       };
       dishInsert(data).then(
         (res) => {
@@ -218,13 +269,15 @@ export default {
       console.log("修改");
       this.form = row;
       this.choose = 1;
+      this.dishTypeList = row.dishType.split(",")
+      this.weekList = row.week.split(",")
       this.dialogFormVisible = true;
       console.log(row);
     },
     Oninsert() {
-      console.log("插入");
-      this.choose = 0;
-      console.log(this.choose);
+      console.log("插入")
+      this.choose = 0
+      console.log(this.choose)
       this.form = {
         doctorId: "",
         physicalExaminationId: "",
@@ -232,14 +285,17 @@ export default {
         physicalExaminationResult: "",
         physicalExaminationTime: "",
         userId: "",
-      };
-      this.dialogFormVisible = true;
+      }
+      this.dishTypeList = []
+      this.weekList = []
+      this.dialogFormVisible = true
     },
     //更新表单
     NewForm(current, size) {
       let params = {
         current: current,
         size: size,
+        authority: "canteen",
       };
       dishPaging(params).then(
         (res) => {
@@ -261,6 +317,7 @@ export default {
         current: this.current,
         size: this.size,
         target: this.formInline.user,
+        authority: "canteen",
       };
       dishSearch(params).then(
         (res) => {
@@ -292,6 +349,7 @@ export default {
     let params = {
       current: 1,
       size: 5,
+      authority: "canteen",
     };
     dishPaging(params).then(
       (res) => {
