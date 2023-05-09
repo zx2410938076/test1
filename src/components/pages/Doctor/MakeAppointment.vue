@@ -36,8 +36,6 @@
       </el-table-column>
       <el-table-column prop="reservationRemarks" label="预约备注" width="200">
       </el-table-column>
-      <el-table-column prop="processingResult" label="处理结果" width="180">
-      </el-table-column>
       <el-table-column prop="processingRemarks" label="处理备注" width="250">
       </el-table-column>
 

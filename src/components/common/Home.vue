@@ -1,10 +1,11 @@
 <template>
   <div class="hello">
     <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
-      <span>{{ RequestData.userName }}</span>
+      <span>姓名：{{ RequestData.userName }}</span>
+      <span>类型：{{ requestType }}</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogTableVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogTableVisible = false"
+        <el-button type="primary" @click="RequestInsert()"
           >确 定</el-button
         >
       </span>
@@ -32,6 +33,7 @@ import Aside from "@/components/common/Aside.vue";
 import Header from "@/components/common/Header.vue";
 import CommonTab from "@/components/common/CommonTab.vue";
 import { Search } from "@/http/user";
+import { requestInsert } from "@/http/request";
 export default {
   name: "HelloWorld",
   data() {
@@ -39,6 +41,10 @@ export default {
       UUID: "community",
       RequestData: [],
       dialogTableVisible: false,
+      requestType:"",
+      state:0,
+      time: "",
+
     };
   },
   components: {
@@ -47,6 +53,44 @@ export default {
     CommonTab,
   },
   methods: {
+    gettime(){
+				var date = new Date();
+				var year = date.getFullYear();
+				var month = date.getMonth() + 1;
+				var day = date.getDate();
+				var hours = date.getHours();
+				var minutes = date.getMinutes();
+				var seconds = date.getSeconds();
+				if (month < 10) {
+				    month = "0" + month;
+				}
+				if (day < 10) {
+				    day = "0" + day;
+				}
+				var sqlTime = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+				console.log(date);
+				console.log(sqlTime);
+				this.time = sqlTime
+			},
+    RequestInsert(){
+      this.gettime()
+      let data = {
+        userId: this.RequestData.userId,
+        requestType: this.requestType,
+        handlerId: this.$store.state.role.userId,
+        handlerName:this.$store.state.role.userName,
+        processingTime:this.time
+      };
+      requestInsert(data).then(
+        (res) => {
+          this.dialogTableVisible = false
+          this.$alert("添加成功");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
     connectWebsocket() {
       if (
         this.$store.state.role.role == "doctor" ||
@@ -72,8 +116,15 @@ export default {
           websocket.onmessage = (evt) => {
             console.log("websocket返回的数据：", evt);
             console.log("获得异常");
-            this.onSubmit(evt.data);
-            this.dialogTableVisible = true;
+            if(this.state == 0){
+              this.onSubmit(evt.data);
+            }
+            else{
+              this.requestType = evt.data
+              this.dialogTableVisible = true;
+
+            }
+            this.state = !this.state
           };
           // 发生错误时
           websocket.onerror = (evt) => {

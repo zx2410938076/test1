@@ -6,17 +6,18 @@
           <el-card class="box-card">
             <div slot="header" class="clearfix">
               <img
-                src="@/assets/user.png"
+                :src="user.picture"
                 alt=""
                 style="width: 100px; height: 100px; border-radius: 50%"
               />
-              <p>姓名:{{ username }}</p>
-              <el-button style="float: right; padding: 3px 0" type="text"
+              <p>姓名:{{ user.userName }}</p>
+              <!-- <el-button style="float: right; padding: 3px 0" type="text"
                 >操作按钮</el-button
-              >
+              > -->
             </div>
-            <div v-for="o in 4" :key="o" class="text item">
-              <div style="display: flex; flex: 10">{{ "列表内容 " + o }}</div>
+            <div>
+              <div>账号：{{ user.userNumber }}</div>
+              <div>身份：{{ user.role }}</div>
             </div>
           </el-card>
           <!-- 投诉信息 -->
@@ -55,7 +56,7 @@
         <div class="grid-content bg-purple-light">
           <!-- 活动信息 -->
           <el-card
-            style="height: 350px"
+            style="height: 350px; overflow: auto"
             v-if="this.$store.state.role.role == 'community'"
           >
             <div slot="header" class="clearfix">
@@ -109,21 +110,27 @@
                   ></el-input>
                   <div v-show="choose == 1">{{ form.activityProfile }}</div>
                 </el-form-item>
-                <el-form-item label="活动图片" :label-width="formLabelWidth">
+                <el-form-item label="展示图片" :label-width="formLabelWidth">
                   <el-upload
-                  ref="upload"
-                  action="http://localhost:9999/file/upLoad"
-                  :limit="1"
-                  :on-success="handleUploadSuccess"
-                  :before-upload="beforeUpload"
-                >
-                  <el-button size="small" type="primary">点击上传</el-button>
-                  <div slot="tip" class="el-upload__tip">
-                    只能上传jpg/png文件，且不超过2M
-                  </div>
-                </el-upload>
+                    ref="upload"
+                    action="http://localhost:9999/file/upLoad"
+                    :limit="1"
+                    :on-success="handleUploadSuccess"
+                    :before-upload="beforeUpload"
+                    v-show="choose != 1"
+                  >
+                    <el-button size="small" type="primary">点击上传</el-button>
+                    <div slot="tip" class="el-upload__tip">
+                      只能上传jpg/png文件，且不超过2M
+                    </div>
+                  </el-upload>
+                  <img
+                    :src="form.activityPic"
+                    alt=""
+                    style="height: 200px"
+                    v-show="choose == 1"
+                  />
                 </el-form-item>
-                
               </el-form>
               <div slot="footer" class="dialog-footer">
                 <div v-show="choose == 1">
@@ -146,36 +153,43 @@
                 </div>
               </div>
             </el-dialog>
-            <div v-for="item in activityForm" :key="item.activityId">
-              <div>
-                <p>活动名称:{{ item.activityName }}</p>
-                <p>活动时间:{{ item.activityTime }}</p>
-              </div>
-              <div>
-                <el-button @click="handleClick(item)" type="text" size="small"
-                  >查看</el-button
-                >
-                <el-button type="text" @click="edit(item)" size="small"
-                  >编辑</el-button
-                >
-                <template>
-                  <el-popconfirm
-                    confirm-button-text="好的"
-                    cancel-button-text="不用了"
-                    @confirm="confirm(item)"
-                    icon="el-icon-info"
-                    icon-color="red"
-                    title="这是一段内容确定删除吗？"
+            <div
+              v-for="item in activityForm"
+              :key="item.activityId"
+              class="activityList"
+            >
+              <div class="activity">
+                <img :src="item.activityPic" alt="" class="activityImg" />
+                <div>
+                  <p>{{ item.activityName }}</p>
+                  <p>{{ item.activityTime }}</p>
+                </div>
+                <div>
+                  <el-button @click="handleClick(item)" type="text" size="small"
+                    >查看</el-button
                   >
-                    <el-button
-                      slot="reference"
-                      type="text"
-                      size="small"
-                      style="margin-left: 10px"
-                      >删除</el-button
+                  <el-button type="text" @click="edit(item)" size="small"
+                    >编辑</el-button
+                  >
+                  <template>
+                    <el-popconfirm
+                      confirm-button-text="好的"
+                      cancel-button-text="不用了"
+                      @confirm="confirm(item)"
+                      icon="el-icon-info"
+                      icon-color="red"
+                      title="这是一段内容确定删除吗？"
                     >
-                  </el-popconfirm>
-                </template>
+                      <el-button
+                        slot="reference"
+                        type="text"
+                        size="small"
+                        style="margin-left: 10px"
+                        >删除</el-button
+                      >
+                    </el-popconfirm>
+                  </template>
+                </div>
               </div>
             </div>
             <div class="block" style="margin-top: 10px">
@@ -295,6 +309,7 @@
 
 <script>
 import * as echarts from "echarts";
+import { Search } from "@/http/user";
 import {
   activityUpdate,
   activityInsert,
@@ -312,7 +327,7 @@ export default {
   name: "Index",
   data() {
     return {
-      username: null,
+      user: {},
       activityForm: {},
       state: 0,
       form: {
@@ -322,7 +337,7 @@ export default {
         activityLocation: null,
         responsiblePerson: null,
         activityProfile: null,
-        activityPic:null
+        activityPic: null,
       },
       complaintform: {},
       choose: 0, //0为输入模式，1为展示
@@ -347,22 +362,41 @@ export default {
     };
   },
   methods: {
+    // //获取用户信息
+    // searchUser() {
+    //   let params = {
+    //     current: this.current,
+    //     size: this.size,
+    //     target: this.username,
+    //   };
+    //   Search(params).then(
+    //     (res) => {
+    //       console.log("这是user");
+    //       console.log(res);
+    //       this.user = res.data.data.records[0];
+    //       console.log(this.user);
+    //     },
+    //     (err) => {
+    //       console.log(err);
+    //     }
+    //   );
+    // },
     //获取后端返回的图片url
-    handleUploadSuccess(res){
-      console.log(res)
-      this.form.activityPic = res.data
-      console.log(this.form.activityPic)
+    handleUploadSuccess(res) {
+      console.log(res);
+      this.form.activityPic = res.data;
+      console.log(this.form.activityPic);
     },
     //图片上传时限制大小
     beforeUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
+      const isJPG = file.type === "image/jpeg";
       const isLt2M = file.size / 1024 / 1024 < 2;
 
       if (!isJPG) {
-        this.$message.error('上传图片只能是 JPG 格式!');
+        this.$message.error("上传图片只能是 JPG 格式!");
       }
       if (!isLt2M) {
-        this.$message.error('上传图片大小不能超过 2MB!');
+        this.$message.error("上传图片大小不能超过 2MB!");
       }
       return isJPG && isLt2M;
     },
@@ -462,15 +496,7 @@ export default {
     //确定修改
     determine() {
       console.log(this.form);
-      let data = {
-        activityId: this.form.activityId,
-        activityName: this.form.activityName,
-        activityTime: this.form.activityTime,
-        activityLocation: this.form.activityLocation,
-        responsiblePerson: this.form.responsiblePerson,
-        activityProfile: this.form.activityProfile,
-      };
-      activityUpdate(data).then(
+      activityUpdate(this.form).then(
         (res) => {
           this.NewForm(this.current, this.size);
           this.announcementMenu = false;
@@ -592,9 +618,8 @@ export default {
     },
   },
   mounted() {
-    this.username = this.$store.state.role.userName;
-    console.log("用户名");
-    console.log(this.$store.state.role.userName);
+    this.user = this.$store.state.role;
+    console.log(this.user);
     var myecharts = echarts.init(this.$refs.echarts);
     var option = {
       xAxis: {
@@ -615,6 +640,7 @@ export default {
     this.NewForm(this.current, this.size);
     this.onSubmit();
     console.log(this.day);
+    // this.searchUser();
   },
 };
 </script>
@@ -646,5 +672,19 @@ export default {
 .row-bg {
   padding: 10px 0;
   background-color: #f9fafc;
+}
+.activityImg {
+  width: 20%;
+}
+.activity {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  // flex-flow:row wrap;
+}
+.activityList {
+  display: flex;
+  // flex-flow:row wrap
 }
 </style>

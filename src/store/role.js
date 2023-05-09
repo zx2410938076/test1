@@ -2,6 +2,9 @@ export default{
     state:{
         userName:null,
         role:null,
+        userId:null,
+        picture:null,
+        userNumber:null,
        
     },
     mutations:{
@@ -18,6 +21,9 @@ export default{
             console.log(val)
             state.userName = val.userName
             state.role = val.authority
+            state.userId = val.userId
+            state.picture = val.picture
+            state.userNumber = val.userNumber
         }
 
     },

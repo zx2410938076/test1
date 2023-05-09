@@ -19,11 +19,27 @@
       <el-table-column type="selection" width="55"> </el-table-column>
       <el-table-column prop="dishName" label="菜品名称" width="180">
       </el-table-column>
+      <el-table-column prop="dishPic" label="菜品展示" width="180">
+        <template slot-scope="scope">
+          <el-popover placement="top-start" title="" trigger="hover">
+            <img
+              :src="scope.row.dishPic"
+              alt=""
+              style="width: 200px; height: 200px"
+            />
+            <img
+              slot="reference"
+              :src="scope.row.dishPic"
+              style="width: 60px; height: 60px"
+            />
+          </el-popover>
+        </template>
+      </el-table-column>
       <el-table-column prop="dishType" label="菜品类型" width="180">
       </el-table-column>
-      <el-table-column prop="rawMaterial" label="主要原料" width="360">
+      <el-table-column prop="rawMaterial" label="主要原料" width="300">
       </el-table-column>
-      <el-table-column prop="dishPrice" label="菜品价格" width="180">
+      <el-table-column prop="dishPrice" label="菜品价格" width="90">
       </el-table-column>
       <el-table-column prop="week" label="日期" width="180"> </el-table-column>
 
@@ -96,6 +112,20 @@
                   <el-checkbox label="星期日"></el-checkbox>
                 </el-checkbox-group>
               </el-form-item>
+              <el-form-item label="菜品展示" :label-width="formLabelWidth">
+                <el-upload
+                  ref="upload"
+                  action="http://localhost:9999/file/upLoad"
+                  :limit="1"
+                  :on-success="handleUploadSuccess"
+                  :before-upload="beforeUpload"
+                >
+                  <el-button size="small" type="primary">点击上传</el-button>
+                  <div slot="tip" class="el-upload__tip">
+                    只能上传jpg/png文件，且不超过2M
+                  </div>
+                </el-upload>
+              </el-form-item>
             </el-form>
 
             <div slot="footer" class="dialog-footer">
@@ -152,6 +182,7 @@ export default {
         dishPrice: "",
         dishType: "",
         rawMaterial: "",
+        dishPic: "",
       },
       formLabelWidth: "120px",
       choose: 0,
@@ -164,12 +195,31 @@ export default {
         user: "",
       },
       tableData: [],
-      week:"",
+      week: "",
       dishTypeList: [],
-      weekList:[] 
+      weekList: [],
     };
   },
   methods: {
+    //获取后端返回的图片url
+    handleUploadSuccess(res) {
+      console.log(res);
+      this.form.dishPic = res.data;
+      console.log(this.form.dishPic);
+    },
+    //图片上传时限制大小
+    beforeUpload(file) {
+      const isJPG = file.type === "image/jpeg";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error("上传图片只能是 JPG 格式!");
+      }
+      if (!isLt2M) {
+        this.$message.error("上传图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
+    },
     //删除用户
     confirm(row) {
       console.log("这是row");
@@ -193,27 +243,29 @@ export default {
     determine() {
       console.log("改前");
       console.log(this.form);
-      console.log(this.dishTypeList)
-      console.log(this.weekList)
-      this.form.dishType= ""
-      for (let index = 0; index < this.dishTypeList.length-1; index++) {
-        this.form.dishType =this.form.dishType + this.dishTypeList[index]+",";        
+      console.log(this.dishTypeList);
+      console.log(this.weekList);
+      this.form.dishType = "";
+      for (let index = 0; index < this.dishTypeList.length - 1; index++) {
+        this.form.dishType =
+          this.form.dishType + this.dishTypeList[index] + ",";
       }
-      this.form.dishType =this.form.dishType + this.dishTypeList[length]
+      this.form.dishType = this.form.dishType + this.dishTypeList[length];
 
-      this.week= ""
+      this.week = "";
       for (let index = 0; index < this.weekList.length; index++) {
-        this.week =this.week + this.weekList[index]+",";        
+        this.week = this.week + this.weekList[index] + ",";
       }
       this.week = this.week.slice(0, -1);
-      console.log(this.week)
+      console.log(this.week);
       let data = {
         dishId: this.form.dishId,
         dishName: this.form.dishName,
         dishPrice: this.form.dishPrice,
         dishType: this.form.dishType,
         rawMaterial: this.form.rawMaterial,
-        week:this.week
+        dishPic: this.form.dishPic,
+        week: this.week,
       };
       dishUpdate(data).then(
         (res) => {
@@ -231,25 +283,27 @@ export default {
     insert() {
       console.log("改前");
       console.log(this.form);
-      console.log(this.dishTypeList)
-      console.log(this.weekList)
-      this.form.dishType= ""
+      console.log(this.dishTypeList);
+      console.log(this.weekList);
+      this.form.dishType = "";
       for (let index = 0; index < this.dishTypeList.length; index++) {
-        this.form.dishType =this.form.dishType + this.dishTypeList[index]+",";        
+        this.form.dishType =
+          this.form.dishType + this.dishTypeList[index] + ",";
       }
       this.form.dishType = this.form.dishType.slice(0, -1);
-      this.week= ""
+      this.week = "";
       for (let index = 0; index < this.weekList.length; index++) {
-        this.week =this.week + this.weekList[index]+",";        
+        this.week = this.week + this.weekList[index] + ",";
       }
       this.week = this.week.slice(0, -1);
-      console.log(this.week)
+      console.log(this.week);
       let data = {
         dishName: this.form.dishName,
         dishPrice: this.form.dishPrice,
         dishType: this.form.dishType,
         rawMaterial: this.form.rawMaterial,
-        week:this.week
+        dishPic: this.form.dishPic,
+        week: this.week,
       };
       dishInsert(data).then(
         (res) => {
@@ -269,15 +323,15 @@ export default {
       console.log("修改");
       this.form = row;
       this.choose = 1;
-      this.dishTypeList = row.dishType.split(",")
-      this.weekList = row.week.split(",")
+      this.dishTypeList = row.dishType.split(",");
+      this.weekList = row.week.split(",");
       this.dialogFormVisible = true;
       console.log(row);
     },
     Oninsert() {
-      console.log("插入")
-      this.choose = 0
-      console.log(this.choose)
+      console.log("插入");
+      this.choose = 0;
+      console.log(this.choose);
       this.form = {
         doctorId: "",
         physicalExaminationId: "",
@@ -285,10 +339,10 @@ export default {
         physicalExaminationResult: "",
         physicalExaminationTime: "",
         userId: "",
-      }
-      this.dishTypeList = []
-      this.weekList = []
-      this.dialogFormVisible = true
+      };
+      this.dishTypeList = [];
+      this.weekList = [];
+      this.dialogFormVisible = true;
     },
     //更新表单
     NewForm(current, size) {

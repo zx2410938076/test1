@@ -16,10 +16,10 @@
     <div class="right">
       <el-dropdown @command="handleCommand">
         <span class="el-dropdown-link">
-          <img  class="HeadPicture" src="@/assets/user.png"/>
+          <img  class="HeadPicture" :src="this.$store.state.role.picture"/>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="a" >个人信息</el-dropdown-item>
+          <!-- <el-dropdown-item command="a" >个人信息</el-dropdown-item> -->
           <el-dropdown-item command="b" >退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>

@@ -59,7 +59,7 @@
 </style>
 
 <script>
-import{Reacquire,GetName}from "@/http/user"
+import{GetName}from "@/http/user"
 export default {
   name: "Aside",
   data() {
@@ -81,7 +81,7 @@ export default {
           label: "用户中心",
           icon: "s-custom",
           url: "Home/OldMan",
-          role: ["community", "doctor"],
+          role: ["community"],
         },
         {
           path: "/Dishes",

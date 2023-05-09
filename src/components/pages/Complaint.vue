@@ -28,7 +28,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="tableData">
+    <el-table :data="tableData" stripe>
       <el-table-column type="selection" width="55"> </el-table-column>
       <el-table-column prop="userName" label="投诉人" width="180">
       </el-table-column>
@@ -38,7 +38,7 @@
       </el-table-column>
       <el-table-column prop="complaintFeedback" label="反馈" width="360">
       </el-table-column>
-      <el-table-column prop="handlerId" label="处理人id" width="180">
+      <el-table-column prop="handlerName" label="处理人" width="180">
       </el-table-column>
 
       <!-- 处理操作 -->
@@ -147,6 +147,7 @@ export default {
         user: "",
       },
       tableData: [],
+      time:""
     };
   },
   methods: {
@@ -177,13 +178,36 @@ export default {
         }
       );
     },
+    gettime(){
+				var date = new Date();
+				var year = date.getFullYear();
+				var month = date.getMonth() + 1;
+				var day = date.getDate();
+				var hours = date.getHours();
+				var minutes = date.getMinutes();
+				var seconds = date.getSeconds();
+				if (month < 10) {
+				    month = "0" + month;
+				}
+				if (day < 10) {
+				    day = "0" + day;
+				}
+				var sqlTime = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+				console.log(date);
+				console.log(sqlTime);
+				this.time = sqlTime
+			},
     //确定修改
     determine() {
+      this.gettime()
       console.log("改前");
       console.log(this.form);
       let data = {
         complaintId: this.form.complaintId,
         complaintFeedback: this.form.complaintFeedback,
+        handlerId:this.$store.state.role.userId,
+        handlerName:this.$store.state.role.userName,
+        processingTime:this.time
       };
       complaintUpdate(data).then(
         (res) => {
@@ -215,19 +239,20 @@ export default {
     },
     //查询
     onSubmit() {
+
       let params = {
-        current: this.current,
-        size: this.size,
-        target: this.formInline.user,
-        state: this.state,
-        authority: this.$store.state.role.role,
+        current: this.current,//页数
+        size: this.size,//每页数量
+        target: this.formInline.user,//搜索内容
+        state: this.state,//状态（已处理/未处理）
+        authority: this.$store.state.role.role,//身份权限
       };
       complaintSearch(params).then(
         (res) => {
           console.log(res.data);
-          this.FormSize = res.data.data.size;
-          this.FormTotal = res.data.data.total;
-          this.tableData = res.data.data.records;
+          this.FormSize = res.data.data.size;//所拿到的数据量
+          this.FormTotal = res.data.data.total;//总数据量
+          this.tableData = res.data.data.records;//所拿到是数据
         },
         (err) => {
           console.log(err);

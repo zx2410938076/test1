@@ -19,13 +19,65 @@
         >
       </el-form-item>
     </el-form>
-    <el-dialog title="添加用户" :visible.sync="adddialogFormVisible">
-      <el-form :model="form">
-        <el-form-item label="用户名" :label-width="formLabelWidth">
+    <el-dialog
+      title="添加用户（初始密码为123456）"
+      :visible.sync="adddialogFormVisible"
+    >
+      <el-form :model="form" :inline="true" label-width="auto">
+        <el-form-item label="账号">
+          <el-input v-model="form.userNumber" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="姓名">
           <el-input v-model="form.userName" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="电话" :label-width="formLabelWidth">
+        <el-form-item label="电话">
           <el-input v-model="form.userPhone" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="住址">
+          <el-input v-model="form.userAddress" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="爱好">
+          <el-input v-model="form.userHobby" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="爱吃">
+          <el-input v-model="form.userFood" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="忌口">
+          <el-input
+            v-model="form.userForbiddenFood"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="头像" :label-width="formLabelWidth">
+          <el-upload
+            ref="upload"
+            action="http://localhost:9999/file/upLoad"
+            :limit="1"
+            :on-success="handleUploadSuccess"
+            :before-upload="beforeUpload"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+            <div slot="tip" class="el-upload__tip">
+              只能上传jpg/png文件，且不超过2M
+            </div>
+          </el-upload>
+        </el-form-item>
+        <el-divider></el-divider>
+        <div style="display: flex; margin-bottom: 10px">紧急联系人</div>
+        <el-form-item label="姓名">
+          <el-input
+            v-model="form.userRelativesName"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="关系">
+          <el-input v-model="form.relationship" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电话">
+          <el-input
+            v-model="form.userRelativesPhone"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -38,15 +90,27 @@
       <el-table-column type="selection" width="55"> </el-table-column>
       <el-table-column prop="userNumber" label="账号" width="180">
       </el-table-column>
+      <el-table-column prop="picture" label="头像">
+        <template slot-scope="scope">
+          <el-popover placement="top-start" title="" trigger="hover">
+            <img
+              :src="scope.row.picture"
+              alt=""
+              style="width: 200px; height: 200px"
+            />
+            <img
+              slot="reference"
+              :src="scope.row.picture"
+              style="width: 60px; height: 60px"
+            />
+          </el-popover>
+        </template>
+      </el-table-column>
       <el-table-column prop="userName" label="姓名" width="180">
       </el-table-column>
       <el-table-column prop="userPhone" label="电话" width="180">
       </el-table-column>
       <el-table-column prop="userAddress" label="住址" width="180">
-      </el-table-column>
-
-      <el-table-column prop="avatar" label="头像">
-        <img :src="tableData.avatar" style="width: 50px; height: 50px" />
       </el-table-column>
 
       <!-- 处理操作 -->
@@ -78,24 +142,118 @@
           </template>
 
           <el-dialog :visible.sync="dialogFormVisible">
-            <el-form :model="form" v-show="choose == 0">
-              <el-form-item label="用户名" :label-width="formLabelWidth">
+            <el-form
+              :model="form"
+              v-show="choose == 0"
+              :inline="true"
+              label-width="auto"
+            >
+              <el-form-item label="姓名">
                 <el-input v-model="form.userName" autocomplete="off"></el-input>
               </el-form-item>
-              <el-form-item label="电话" :label-width="formLabelWidth">
+              <el-form-item label="电话">
                 <el-input
                   v-model="form.userPhone"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
+              <el-form-item label="住址">
+                <el-input
+                  v-model="form.userAddress"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="爱好">
+                <el-input
+                  v-model="form.userHobby"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="爱吃">
+                <el-input v-model="form.userFood" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="忌口">
+                <el-input
+                  v-model="form.userForbiddenFood"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="头像" :label-width="formLabelWidth">
+                <el-upload
+                  ref="upload"
+                  action="http://localhost:9999/file/upLoad"
+                  :limit="1"
+                  :on-success="handleUploadSuccess"
+                  :before-upload="beforeUpload"
+                >
+                  <el-button size="small" type="primary">点击上传</el-button>
+                  <div slot="tip" class="el-upload__tip">
+                    只能上传jpg/png文件，且不超过2M
+                  </div>
+                </el-upload>
+              </el-form-item>
+              <el-divider></el-divider>
+              <div style="display: flex; margin-bottom: 10px">紧急联系人</div>
+              <el-form-item label="姓名">
+                <el-input
+                  v-model="form.userRelativesName"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="关系">
+                <el-input
+                  v-model="form.relationship"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="电话">
+                <el-input
+                  v-model="form.userRelativesPhone"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
             </el-form>
 
-            <el-form :model="form" v-show="choose == 1">
-              <el-form-item label="用户名" :label-width="formLabelWidth">
-                {{ form.userName }}
+            <el-form
+              :model="form"
+              v-show="choose == 1"
+              :inline="true"
+              label-width="200px"
+            >
+              <el-form-item label="姓名">
+                {{form.userName}}
               </el-form-item>
-              <el-form-item label="电话" :label-width="formLabelWidth">
-                {{ form.userPhone }}
+              <el-form-item label="电话">
+                {{form.userPhone}}
+              </el-form-item>
+              <el-form-item label="住址">
+                {{form.userAddress}}
+              </el-form-item>
+              <el-form-item label="爱好">
+                {{ form.userHobby }}
+              </el-form-item>
+              <el-form-item label="爱吃">
+                {{ form.userFood }}
+              </el-form-item>
+              <el-form-item label="忌口">
+                {{ form.userForbiddenFood }}
+              </el-form-item>
+              <el-form-item label="头像" :label-width="formLabelWidth">
+                <img
+              :src="form.picture"
+              style="width: 200px; height: 200px"
+            />
+              </el-form-item>
+              <el-divider></el-divider>
+              <div style="display: flex; margin-bottom: 10px">紧急联系人</div>
+              <el-form-item label="姓名">
+                {{ form.userRelativesName }}
+              </el-form-item>
+              <el-form-item label="关系">
+                {{ form.relationship }}
+              </el-form-item>
+              <el-form-item label="电话">
+                {{ form.userRelativesPhone }}
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer" v-show="choose == 0">
@@ -138,8 +296,18 @@ export default {
       choose: 0,
       //所更新数据
       form: {
-        userName: "",
+        userNumber: "",
+        picture: "",
+        relationship: "",
+        userAddress: "",
+        userFood: "",
+        userForbiddenFood: "",
+        userHobby: "",
         userPhone: "",
+        userRelativesName: "",
+        userRelativesPhone: "",
+        authority: "",
+        userPassword: "",
       },
       formLabelWidth: "120px",
 
@@ -155,6 +323,25 @@ export default {
     };
   },
   methods: {
+    //获取后端返回的图片url
+    handleUploadSuccess(res) {
+      console.log(res);
+      this.form.picture = res.data;
+      console.log(this.form.picture);
+    },
+    //图片上传时限制大小
+    beforeUpload(file) {
+      const isJPG = file.type === "image/jpeg";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error("上传图片只能是 JPG 格式!");
+      }
+      if (!isLt2M) {
+        this.$message.error("上传图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
+    },
     //添加用户
     AddUser() {
       console.log("添加");
@@ -168,11 +355,7 @@ export default {
     //新建用户
     insert() {
       console.log(this.form);
-      let data = {
-        userName: this.form.userName,
-        userPhone: this.form.userPhone,
-      };
-      Insert(data).then(
+      Insert(this.form).then(
         (res) => {
           console.log(this.form);
           console.log(res.data);
@@ -206,12 +389,7 @@ export default {
     //确定修改
     determine() {
       console.log(this.form);
-      let data = {
-        userId: this.form.userId,
-        userName: this.form.userName,
-        userPhone: this.form.userPhone,
-      };
-      Update(data).then(
+      Update(this.form).then(
         (res) => {
           console.log(res.data);
           this.NewForm(this.current, this.size);
@@ -226,18 +404,14 @@ export default {
     //编辑信息
     edit(row) {
       this.dialogFormVisible = true;
-      this.form.userId = row.userId;
-      this.form.userName = row.userName;
-      this.form.userPhone = row.userPhone;
+      this.form = row;
       this.choose = 0;
       console.log(row);
     },
     //查看详细信息
     handleClick(row) {
       this.dialogFormVisible = true;
-      this.form.userId = row.userId;
-      this.form.userName = row.userName;
-      this.form.userPhone = row.userPhone;
+      this.form = row;
       this.choose = 1;
       console.log(row);
     },

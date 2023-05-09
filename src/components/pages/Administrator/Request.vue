@@ -14,11 +14,11 @@
 
     <el-table :data="tableData">
       <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column prop="userId" label="用户id" width="180">
+      <el-table-column prop="userId" label="用户" width="180">
       </el-table-column>
       <el-table-column prop="requestType" label="请求类型" width="180">
       </el-table-column>
-      <el-table-column prop="handlerId" label="处理人id" width="180">
+      <el-table-column prop="handlerId" label="处理人" width="180">
       </el-table-column>
       <el-table-column prop="remarks" label="备注" width="360">
       </el-table-column>
