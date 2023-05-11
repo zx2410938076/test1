@@ -80,8 +80,29 @@
             </el-form>
 
             <el-form :model="form" v-show="choose == 1">
+              <el-form-item label="用户姓名" :label-width="formLabelWidth">
+                {{ form.handlerName }}
+              </el-form-item>
+              <el-form-item label="投诉部门" :label-width="formLabelWidth">
+                {{ form.complaintDepartment }}
+              </el-form-item>
+              <el-form-item label="投诉对象" :label-width="formLabelWidth">
+                {{ form.complaintObject }}
+              </el-form-item>
+              <el-form-item label="描述" :label-width="formLabelWidth">
+                {{ form.complaintDescription }}
+              </el-form-item>
+              <el-form-item label="发起时间" :label-width="formLabelWidth">
+                {{ form.initiationTime }}
+              </el-form-item>
               <el-form-item label="反馈信息" :label-width="formLabelWidth">
                 {{ form.complaintFeedback }}
+              </el-form-item>
+              <el-form-item label="处理人" :label-width="formLabelWidth">
+                {{ form.handlerName }}
+              </el-form-item>
+              <el-form-item label="处理时间" :label-width="formLabelWidth">
+                {{ form.processingTime }}
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer" v-show="choose == 0">
@@ -186,11 +207,20 @@ export default {
 				var hours = date.getHours();
 				var minutes = date.getMinutes();
 				var seconds = date.getSeconds();
-				if (month < 10) {
+        if (month < 10) {
 				    month = "0" + month;
 				}
 				if (day < 10) {
 				    day = "0" + day;
+				}
+        if (hours < 10) {
+          hours = "0" + hours;
+				}
+				if (minutes < 10) {
+          minutes = "0" + minutes;
+				}
+        if (seconds < 10) {
+          seconds = "0" + seconds;
 				}
 				var sqlTime = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
 				console.log(date);

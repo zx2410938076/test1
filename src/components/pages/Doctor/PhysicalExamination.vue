@@ -23,7 +23,7 @@
 
     <el-table :data="tableData">
       <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column prop="userId" label="用户id" width="180">
+      <el-table-column prop="userName" label="用户姓名" width="180">
       </el-table-column>
       <el-table-column
         prop="physicalExaminationItems"
@@ -43,7 +43,7 @@
         width="360"
       >
       </el-table-column>
-      <el-table-column prop="doctorId" label="医生id" width="180">
+      <el-table-column prop="doctorName" label="医生姓名" width="180">
       </el-table-column>
       <el-table-column
         prop="physicalExaminationTime"
@@ -82,7 +82,7 @@
             <div v-show="choose == 0 || choose == 1">
               <el-form :model="form">
                 <div v-show="choose == 0">
-                  <el-form-item label="用户id" :label-width="formLabelWidth">
+                  <el-form-item label="用户" :label-width="formLabelWidth">
                     <el-input
                       v-model="form.userId"
                       autocomplete="off"
@@ -112,7 +112,7 @@
             <!-- 用户病史 -->
             <div v-show="choose == 2">
               <el-form>
-                <el-form-item label="用户id" :label-width="formLabelWidth">
+                <el-form-item label="用户" :label-width="formLabelWidth">
                   <el-input
                     v-model="diseaseSearch.search"
                     autocomplete="off"
@@ -129,7 +129,7 @@
             <!-- 医生建议 -->
             <div v-show="choose == 3">
               <el-form>
-                <el-form-item label="用户id" :label-width="formLabelWidth">
+                <el-form-item label="用户" :label-width="formLabelWidth">
                   <el-input
                     v-model="diseaseSearch.search"
                     autocomplete="off"
@@ -176,7 +176,7 @@
           <el-dialog :visible.sync="diseaseDialogFormVisible">
             <!-- 添加病史 -->
             <el-form :model="addDisease">
-              <el-form-item label="用户id" :label-width="formLabelWidth">
+              <el-form-item label="用户" :label-width="formLabelWidth">
                 <el-input
                   v-model="addDisease.addId"
                   autocomplete="off"
@@ -202,7 +202,7 @@
           <el-dialog :visible.sync="adviceDialogFormVisible">
             <!-- 添加建议 -->
             <el-form :model="advice">
-                <el-form-item label="用户id" :label-width="formLabelWidth">
+                <el-form-item label="用户" :label-width="formLabelWidth">
                   <el-input
                     v-model="advice.addId"
                     autocomplete="off"
@@ -216,7 +216,7 @@
                 </el-form-item>
                 <el-form-item label="食材推荐" :label-width="formLabelWidth">
                   <el-input
-                    v-model="advice.IngredientRecommendation"
+                    v-model="advice.ingredientRecommendation"
                     autocomplete="off"
                   ></el-input>
                 </el-form-item>
@@ -291,6 +291,7 @@ export default {
       currentPage4: 4,
       current: 1,
       size: 5,
+      time:"",
       formInline: {
         user: "",
       },
@@ -304,7 +305,7 @@ export default {
       advice:{
         addId: "",
         activitySuggestion: "",
-        IngredientRecommendation: "",
+        ingredientRecommendation: "",
         foodAvoidance: "",
       },
       tableData: [],
@@ -338,6 +339,7 @@ export default {
       let data = {
         physicalExaminationId: this.form.physicalExaminationId,
         physicalExaminationItems: this.form.physicalExaminationItems,
+        physicalExaminationValue: this.form.physicalExaminationValue,
         physicalExaminationResult: this.form.physicalExaminationResult,
       };
       physicalExaminationUpdate(data).then(
@@ -352,13 +354,46 @@ export default {
         }
       );
     },
+    gettime(){
+				var date = new Date();
+				var year = date.getFullYear();
+				var month = date.getMonth() + 1;
+				var day = date.getDate();
+				var hours = date.getHours();
+				var minutes = date.getMinutes();
+				var seconds = date.getSeconds();
+				if (month < 10) {
+				    month = "0" + month;
+				}
+				if (day < 10) {
+				    day = "0" + day;
+				}
+        if (hours < 10) {
+          hours = "0" + hours;
+				}
+				if (minutes < 10) {
+          minutes = "0" + minutes;
+				}
+        if (seconds < 10) {
+          seconds = "0" + seconds;
+				}
+				var sqlTime = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+				console.log(date);
+				console.log(sqlTime);
+				this.time = sqlTime
+			},
     //新建用户
     insert() {
+      this.gettime()
       console.log(this.form);
       let data = {
-        userId: this.userId,
+        userId: this.form.userId,
         physicalExaminationItems: this.form.physicalExaminationItems,
         physicalExaminationResult: this.form.physicalExaminationResult,
+        physicalExaminationValue:this.form.physicalExaminationValue,
+        doctorId:this.$store.state.role.userId,
+        doctorName:this.$store.state.role.userName,
+        physicalExaminationTime:this.time
       };
       physicalExaminationInsert(data).then(
         (res) => {
@@ -375,11 +410,13 @@ export default {
     },
     //新建病史数据
     addDiseaseInsert() {
+      this.gettime()
       console.log("添加病史");
       console.log(this.addDisease);
       let data = {
         userId: this.addDisease.addId,
         disease: this.addDisease.addDisease,
+        diseaseTime: this.time,
       };
       diseaseInsert(data).then(
         (res) => {
@@ -397,14 +434,16 @@ export default {
     },
     //新建医生建议
     addAdvice() {
+      this.gettime();
       console.log("添加医生建议");
       console.log(this.advice);
       let data = {
         userId: this.advice.addId,
         activitySuggestion: this.advice.activitySuggestion,
-        IngredientRecommendation: this.advice.IngredientRecommendation,
+        ingredientRecommendation: this.advice.ingredientRecommendation,
         foodAvoidance: this.advice.foodAvoidance,
-        state:1
+        suggestedTime: this.time,
+        state: 1,
       };
       doctorAdviceInsert(data).then(
         (res) => {
@@ -459,8 +498,9 @@ export default {
       let params = {
         current: current,
         size: size,
+        target: this.formInline.user,
       };
-      physicalExaminationPaging(params).then(
+      physicalExaminationSearch(params).then(
         (res) => {
           console.log(res.data);
           this.FormSize = res.data.data.size;
@@ -551,8 +591,9 @@ export default {
     let params = {
       current: 1,
       size: 5,
+      target: this.formInline.user,
     };
-    physicalExaminationPaging(params).then(
+    physicalExaminationSearch(params).then(
       (res) => {
         console.log(res.data);
         this.FormSize = res.data.data.size;

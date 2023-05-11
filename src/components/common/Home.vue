@@ -1,13 +1,19 @@
 <template>
   <div class="hello">
-    <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
-      <span>姓名：{{ RequestData.userName }}</span>
-      <span>类型：{{ requestType }}</span>
+    <el-dialog :title="requestType" :visible.sync="dialogTableVisible">
+      <div>姓名：{{ RequestData.userName }}</div>
+      <div>电话：{{ RequestData.userPhone }}</div>
+      <div>性别：{{ RequestData.gender }}</div>
+      <div>住址：{{ RequestData.userAddress }}</div>
+      <div>紧急联系人：{{ RequestData.userRelativesName }}</div>
+      <div>紧急联系人电话：{{ RequestData.userRelativesPhone }}</div>
+      <div>关系：{{ RequestData.relationship }}</div>
+      <div v-for="item in diseaseData" :key="item.diseaseId">
+        病症：{{ item.disease }} 时间：{{ item.diseaseTime }}
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogTableVisible = false">取 消</el-button>
-        <el-button type="primary" @click="RequestInsert()"
-          >确 定</el-button
-        >
+        <el-button type="primary" @click="RequestInsert()">确 定</el-button>
       </span>
     </el-dialog>
     <el-container>
@@ -34,6 +40,7 @@ import Header from "@/components/common/Header.vue";
 import CommonTab from "@/components/common/CommonTab.vue";
 import { Search } from "@/http/user";
 import { requestInsert } from "@/http/request";
+import { diseaseSearch } from "@/http/disease";
 export default {
   name: "HelloWorld",
   data() {
@@ -41,10 +48,12 @@ export default {
       UUID: "community",
       RequestData: [],
       dialogTableVisible: false,
-      requestType:"",
-      state:0,
+      requestType: "",
+      state: 0,
       time: "",
-
+      diseaseData: {},
+      current:1,
+      size:5,
     };
   },
   components: {
@@ -53,37 +62,77 @@ export default {
     CommonTab,
   },
   methods: {
-    gettime(){
-				var date = new Date();
-				var year = date.getFullYear();
-				var month = date.getMonth() + 1;
-				var day = date.getDate();
-				var hours = date.getHours();
-				var minutes = date.getMinutes();
-				var seconds = date.getSeconds();
-				if (month < 10) {
-				    month = "0" + month;
-				}
-				if (day < 10) {
-				    day = "0" + day;
-				}
-				var sqlTime = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
-				console.log(date);
-				console.log(sqlTime);
-				this.time = sqlTime
-			},
-    RequestInsert(){
-      this.gettime()
+    //查询病史
+    disease() {
+      console.log(this.RequestData.userId);
+      let params = {
+        current: this.current,
+        size: this.size,
+        target: this.RequestData.userId,
+      };
+      diseaseSearch(params).then(
+        (res) => {
+          console.log("病史");
+          console.log(res.data);
+          this.diseaseData = res.data.data.records;
+          // console.log(this.diseaseData);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    },
+    gettime() {
+      var date = new Date();
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var day = date.getDate();
+      var hours = date.getHours();
+      var minutes = date.getMinutes();
+      var seconds = date.getSeconds();
+      if (month < 10) {
+        month = "0" + month;
+      }
+      if (day < 10) {
+        day = "0" + day;
+      }
+      if (hours < 10) {
+        hours = "0" + hours;
+      }
+      if (minutes < 10) {
+        minutes = "0" + minutes;
+      }
+      if (seconds < 10) {
+        seconds = "0" + seconds;
+      }
+      var sqlTime =
+        year +
+        "-" +
+        month +
+        "-" +
+        day +
+        " " +
+        hours +
+        ":" +
+        minutes +
+        ":" +
+        seconds;
+      console.log(date);
+      console.log(sqlTime);
+      this.time = sqlTime;
+    },
+    RequestInsert() {
+      this.gettime();
       let data = {
         userId: this.RequestData.userId,
         requestType: this.requestType,
         handlerId: this.$store.state.role.userId,
-        handlerName:this.$store.state.role.userName,
-        processingTime:this.time
+        handlerName: this.$store.state.role.userName,
+        processingTime: this.time,
       };
       requestInsert(data).then(
         (res) => {
-          this.dialogTableVisible = false
+          this.dialogTableVisible = false;
           this.$alert("添加成功");
         },
         (err) => {
@@ -116,15 +165,14 @@ export default {
           websocket.onmessage = (evt) => {
             console.log("websocket返回的数据：", evt);
             console.log("获得异常");
-            if(this.state == 0){
+            if (this.state == 0) {
               this.onSubmit(evt.data);
-            }
-            else{
-              this.requestType = evt.data
+              this.disease();
+            } else {
+              this.requestType = evt.data;
               this.dialogTableVisible = true;
-
             }
-            this.state = !this.state
+            this.state = !this.state;
           };
           // 发生错误时
           websocket.onerror = (evt) => {
@@ -159,6 +207,7 @@ export default {
           console.log(res.data);
           console.log("home里的search");
           this.RequestData = res.data.data.records[0];
+          
         },
         (err) => {
           console.log(err);

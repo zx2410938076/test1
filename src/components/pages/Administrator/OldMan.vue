@@ -30,6 +30,9 @@
         <el-form-item label="姓名">
           <el-input v-model="form.userName" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item label="性别">
+          <el-input v-model="form.gender" autocomplete="off"></el-input>
+        </el-form-item>
         <el-form-item label="电话">
           <el-input v-model="form.userPhone" autocomplete="off"></el-input>
         </el-form-item>
@@ -108,6 +111,8 @@
       </el-table-column>
       <el-table-column prop="userName" label="姓名" width="180">
       </el-table-column>
+      <el-table-column prop="gender" label="性别" width="180">
+      </el-table-column>
       <el-table-column prop="userPhone" label="电话" width="180">
       </el-table-column>
       <el-table-column prop="userAddress" label="住址" width="180">
@@ -150,6 +155,9 @@
             >
               <el-form-item label="姓名">
                 <el-input v-model="form.userName" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="性别">
+                <el-input v-model="form.gender" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item label="电话">
                 <el-input
@@ -222,6 +230,9 @@
             >
               <el-form-item label="姓名">
                 {{form.userName}}
+              </el-form-item>
+              <el-form-item label="性别">
+                {{form.gender}}
               </el-form-item>
               <el-form-item label="电话">
                 {{form.userPhone}}
@@ -308,6 +319,7 @@ export default {
         userRelativesPhone: "",
         authority: "",
         userPassword: "",
+        gender:""
       },
       formLabelWidth: "120px",
 
@@ -346,9 +358,19 @@ export default {
     AddUser() {
       console.log("添加");
       this.form = {
-        userId: "",
-        userName: "",
+        userNumber: "",
+        picture: "",
+        relationship: "",
+        userAddress: "",
+        userFood: "",
+        userForbiddenFood: "",
+        userHobby: "",
         userPhone: "",
+        userRelativesName: "",
+        userRelativesPhone: "",
+        authority: "",
+        userPassword: "",
+        gender:""
       };
       this.adddialogFormVisible = true;
     },

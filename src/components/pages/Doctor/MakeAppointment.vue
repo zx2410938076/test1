@@ -208,16 +208,17 @@ export default {
     determine() {
       console.log("改前");
       console.log(this.form);
-      let data = {
-        appointmentId: this.form.appointmentId,
-        processingResult: this.form.processingResult,
-      };
-      makeAppointmentUpdate(data).then(
+      // let data = {
+      //   appointmentId: this.form.appointmentId,
+      //   processingResult: this.form.processingResult,
+      // };
+      makeAppointmentUpdate(this.form).then(
         (res) => {
-          console.log(res.data);
           this.NewForm(this.current, this.size);
           this.dialogFormVisible = false;
-          this.$alert("修改成功");
+          console.log("test")
+          console.log(res.data.message)
+          this.$alert(res.data.message);
         },
         (err) => {
           console.log(err);

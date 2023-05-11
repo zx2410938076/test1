@@ -14,11 +14,11 @@
 
     <el-table :data="tableData">
       <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column prop="userId" label="用户" width="180">
+      <el-table-column prop="userName" label="用户" width="180">
       </el-table-column>
       <el-table-column prop="requestType" label="请求类型" width="180">
       </el-table-column>
-      <el-table-column prop="handlerId" label="处理人" width="180">
+      <el-table-column prop="handlerName" label="处理人" width="180">
       </el-table-column>
       <el-table-column prop="remarks" label="备注" width="360">
       </el-table-column>
@@ -165,8 +165,9 @@ export default {
       let params = {
         current: current,
         size: size,
+        target: this.formInline.user,
       };
-      requestPaging(params).then(
+      requestSearch(params).then(
         (res) => {
           console.log(res.data);
           this.FormSize = res.data.data.size;
@@ -217,8 +218,9 @@ export default {
     let params = {
       current: 1,
       size: 5,
+      target: this.formInline.user,
     };
-    requestPaging(params).then(
+    requestSearch(params).then(
       (res) => {
         console.log(res.data);
         this.FormSize = res.data.data.size;

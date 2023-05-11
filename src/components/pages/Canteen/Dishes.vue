@@ -248,9 +248,10 @@ export default {
       this.form.dishType = "";
       for (let index = 0; index < this.dishTypeList.length - 1; index++) {
         this.form.dishType =
-          this.form.dishType + this.dishTypeList[index] + ",";
+          this.form.dishType + this.dishTypeList[index+1] + ",";
       }
       this.form.dishType = this.form.dishType + this.dishTypeList[length];
+      console.log(this.form.dishType);
 
       this.week = "";
       for (let index = 0; index < this.weekList.length; index++) {
@@ -324,6 +325,7 @@ export default {
       this.form = row;
       this.choose = 1;
       this.dishTypeList = row.dishType.split(",");
+      console.log(this.dishTypeList)
       this.weekList = row.week.split(",");
       this.dialogFormVisible = true;
       console.log(row);
